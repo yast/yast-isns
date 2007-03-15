@@ -1,0 +1,426 @@
+{
+
+textdomain "isns";
+import "Label";
+import "IsnsServer";
+import "String";
+
+global  string address = "";
+
+void initDiscoveryDomainSetMembers (string key);
+void initDiscoveryDomain (string key);
+void initDDISCSIMembers (string key);
+void initISCSI (string key);
+
+//	**************** global funcions and variables *****
+map <string, any> DiscoveryDomainSetDetailDialog(map<string, any> values_before){
+  map <string, any> ret_map = $[];
+  term dds_dialog =
+     `VBox(
+	`Left( `HWeight(3,`TextEntry( `id( `ddsentry ), "Discovery Domain Set Name" )) ),
+	`Left( `HBox( `PushButton(`id(`ok), Label::OKButton() ), `PushButton(`id(`cancel), Label::CancelButton() )))
+      );
+      UI::OpenDialog(dds_dialog);
+
+      symbol ret = `nil;
+      while(ret != `ok && ret !=`cancel){
+	 	boolean enable=false;
+	     	ret = (symbol)UI::UserInput();
+      }
+
+      if (ret == `cancel) ret_map = $[];
+      else {
+		string value=(string)UI::QueryWidget(`ddsentry,`Value);
+		ret_map = $["VALUE":value];
+      }
+ UI::CloseDialog();
+ return ret_map;
+}
+
+map <string, any> DisplayAllMembersDialog(string dd_name, string dd_id){
+  map <string, any> ret_map = $[];
+  term iscsi_member_dialog =
+     `VBox(
+        `Heading("Add ISCSI node to Discovery Domain"),
+        `Label(dd_name),
+        `HSpacing(50),
+        `Heading (_("Nodes")),
+        `HBox(
+          `VSpacing(10),
+          `Table(`id(`members_table),
+            `header(_("Name")),
+            [])
+        ),
+	`Left(
+           `HBox(
+             `PushButton(`id(`add), _("Add Node")),
+             `PushButton(`id(`exit), _("Done"))
+            )
+         )
+      );
+      UI::OpenDialog(iscsi_member_dialog);
+
+      initISCSI ("");
+
+      symbol ret = `nil;
+      while(ret != `exit && ret != `add) {
+	 	boolean enable=false;
+	     	ret = (symbol)UI::UserInput();
+          if (ret == `add)
+          {
+             y2milestone("Add a node");
+ 	     any index = UI::QueryWidget(`id (`members_table),`CurrentItem);
+             string iqn = ((term)UI::QueryWidget(`id(`members_table),`Item(index)))[1]:"";
+             IsnsServer::addDDMember(address,dd_id,iqn);
+          }
+      }
+
+ UI::CloseDialog();
+ return ret_map;
+}
+
+map <string, any> DisplayAllDiscoveryDomainsDialog(string dds_name, string dds_id){
+  map <string, any> ret_map = $[];
+  term dds_dialog =
+     `VBox(
+        `Heading("Add Discovery Domain to Set"),
+        `Label(dds_name),
+        `HSpacing(50),
+        `Heading (_("Discovery Domains")),
+        `HBox(
+          `VSpacing(10),
+          `Table(`id(`dd_table),
+            `header(_("Name")),
+            [])
+        ),
+	`Left(
+           `HBox(
+             `PushButton(`id(`add), _("Add Discovery Domain")),
+             `PushButton(`id(`exit), _("Done"))
+            )
+         )
+      );
+      UI::OpenDialog(dds_dialog);
+
+      initDiscoveryDomain ("");
+
+      symbol ret = `nil;
+      while(ret != `exit && ret != `add) {
+	 	boolean enable=false;
+	     	ret = (symbol)UI::UserInput();
+          if (ret == `add)
+          {
+             y2milestone("Add a dds member");
+ 	     string dd_id = (string)UI::QueryWidget(`id (`dd_table),`CurrentItem);
+             IsnsServer::addDDSMember(address,dds_id,dd_id);
+          }
+      }
+
+ UI::CloseDialog();
+ return ret_map;
+}
+
+map <string, any> DisplayDiscoveryDomainSetDialog(string dds_name, string dds_id){
+  map <string, any> ret_map = $[];
+  term dds_dialog =
+     `VBox(
+        `Label(dds_name),
+        `HSpacing(50),
+        `Heading (_("Discovery Domains")),
+        `HBox(
+          `VSpacing(10),
+          `Table(`id(`dds_members_table),
+            `header(_("Name")),
+            [])
+        ),
+	`Left(
+           `HBox(
+             `PushButton(`id(`add), _("Add Discovery Domain")),
+             `PushButton(`id(`remove), _("Remove")),
+             `PushButton(`id(`exit), _("Done"))
+            )
+         )
+      );
+      UI::OpenDialog(dds_dialog);
+
+      initDiscoveryDomainSetMembers (dds_id);
+
+      symbol ret = `nil;
+      while(ret != `exit){
+	 	boolean enable=false;
+	     	ret = (symbol)UI::UserInput();
+          if (ret == `remove)
+          {
+             y2milestone("Unassign a dds member");
+ 	     string dd_id = (string)UI::QueryWidget(`id (`dds_members_table),`CurrentItem);
+             IsnsServer::deleteDDSMember(address,dds_id,dd_id);
+             initDiscoveryDomainSetMembers (dds_id);
+          }
+          else if (ret == `add)
+          {
+             y2milestone("Add a dds member");
+             map<string, any> add_map1 = DisplayAllDiscoveryDomainsDialog(dds_name,dds_id);
+             initDiscoveryDomainSetMembers (dds_id);
+          }
+      }
+
+ UI::CloseDialog();
+ return ret_map;
+}
+
+map <string, any> DisplayDiscoveryDomainDialog(string dd_name, string dd_id){
+  map <string, any> ret_map = $[];
+  term dds_dialog =
+     `VBox(
+        `Label(dd_name),
+        `HSpacing(50),
+        `Heading (_("Discovery Domain Members")),
+        `HBox(
+          `VSpacing(10),
+          `Table(`id(`dd_members_table),
+            `header(_("Name")),
+            [])
+        ),
+	`Left(
+           `HBox(
+             `PushButton(`id(`add), _("Add Iscsi Node")),
+             `PushButton(`id(`remove), _("Remove")),
+             `PushButton(`id(`exit), _("Done"))
+            )
+         )
+      );
+      UI::OpenDialog(dds_dialog);
+
+      initDDISCSIMembers (dd_id);
+
+      symbol ret = `nil;
+      while(ret != `exit){
+	 	boolean enable=false;
+	     	ret = (symbol)UI::UserInput();
+          if (ret == `remove)
+          {
+             y2milestone("Unassign a dds member");
+ 	     any iqn = UI::QueryWidget(`id (`dd_members_table),`CurrentItem);
+             string name = ((term)UI::QueryWidget(`id(`dd_members_table),`Item(iqn)))[1]:"";
+             IsnsServer::deleteDDMember(address,dd_id,name);
+             initDDISCSIMembers (dd_id);
+          }
+          else if (ret == `add)
+          {
+             y2milestone("Add a dds member");
+             map<string, any> add_map1 = DisplayAllMembersDialog(dd_name,dd_id);
+             initDDISCSIMembers (dd_id);
+          }
+      }
+
+ UI::CloseDialog();
+ return ret_map;
+}
+
+void initAddress (string key){
+  address = ((map<string, any>)SCR::Execute(.target.bash_output,"cat /etc/isns.conf|cut -d'=' -f2|tr -d '\n'"))["stdout"]:"";
+  UI::ChangeWidget(`isnsaddress, `Value, address);
+}
+
+void initISCSI (string key){
+    integer count = 0;
+    list <term> inc_items = [];
+
+    foreach(string key, IsnsServer::readISCSI(address), {
+       inc_items = add(inc_items, `item(`id(count), key));
+       count = count + 1;
+    });
+
+  UI::ChangeWidget(`id(`members_table), `Items, inc_items);
+}
+
+void initDDISCSIMembers (string key) ``{
+    integer count = 0;
+    string index="";
+    string ddid="";
+    list <term> inc_items = [];
+
+    ddid=key;
+    foreach(string key, IsnsServer::readDDMembers(address,ddid), {
+       y2milestone("iscsiMembers: %1",key);
+       inc_items = add(inc_items, `item(`id(count), key));
+       count = count +1;
+   });
+
+  UI::ChangeWidget(`id(`dd_members_table), `Items, inc_items);
+}
+
+void initDiscoveryDomain (string key) ``{
+    integer count = 0;
+    string index="";
+    list <term> inc_items = [];
+
+   foreach(string key, IsnsServer::readDD(address), {
+     if (count == 0)
+     {
+        index = key;    
+        count = 1;       
+     }
+     else
+     {
+       inc_items = add(inc_items, `item(`id(index), key));
+       count = 0;
+     }
+   });
+
+  UI::ChangeWidget(`id(`dd_table), `Items, inc_items);
+}
+
+void initDiscoveryDomainSet (string key) ``{
+    integer count = 0;
+    string index="";
+
+    list <term> inc_items = [];
+
+    y2milestone("isnsaddress is %1",address); 
+
+    foreach(string key, IsnsServer::readDDS(address), {
+     if (count == 0)
+     {
+        index = key;    
+        count = 1;       
+     }
+     else
+     {
+       inc_items = add(inc_items, `item(`id(index), key));
+       count = 0;
+     }
+   });
+
+  UI::ChangeWidget(`id(`dds_table), `Items, inc_items);
+
+}
+
+void initDiscoveryDomainSetMembers (string key) {
+    integer count = 0;
+    string index="";
+    list <term> inc_items = [];
+    string dds_id = "";
+
+    //y2milestone("key: %1",key);
+    dds_id = key;
+
+    foreach(string key, IsnsServer::readDDSMembers(address,dds_id), {
+    y2milestone("results received: %1",key);
+     if (count == 0)
+     {
+        index = key;    
+        count = 1;       
+     }
+     else
+     {
+       inc_items = add(inc_items, `item(`id(index), key));
+       count = 0;
+     }
+   });
+
+  UI::ChangeWidget(`id(`dds_members_table), `Items, inc_items);
+}
+
+
+symbol handleAddress(string key, map event){
+ if ( event["EventReason"]:"" == "Activated" ){
+ 
+  address=(string)UI::QueryWidget(`isnsaddress,`Value);
+
+  SCR::Execute(.target.bash_output, sformat("echo \"isns_address=%1\">/etc/isns.conf",address));
+
+  y2milestone("isnsaddress is %1",address); 
+ }
+ return nil;
+}
+
+
+symbol handleISCSI(string key, map event){
+ if ( event["EventReason"]:"" == "Activated" ){
+  switch((symbol)event["WidgetID"]:nil){
+   case `delete:
+     any del = UI::QueryWidget(`id (`members_table),`CurrentItem);
+     if (del != nil)
+     {
+        if (Popup::ContinueCancel(_("Really delete the selected item?")))
+        {
+	   string discoverydomainsetname = ((term)UI::QueryWidget(`id(`members_table), `Item(del)))[1]:"";
+           IsnsServer::deleteISCSI(address,discoverydomainsetname);
+           initISCSI ("");
+        }
+        else 
+           y2milestone("Delete canceled");
+     }
+     break;
+  }
+ }
+}
+
+symbol handleDiscoveryDomain(string key, map event){
+ if ( event["EventReason"]:"" == "Activated" ){
+  switch((symbol)event["WidgetID"]:nil){
+   case `delete:
+     string del = (string)UI::QueryWidget(`id (`dd_table),`CurrentItem);
+     if (del != nil)
+     {
+       if (Popup::ContinueCancel(_("Really delete the selected item?")))
+       {
+         IsnsServer::deleteDD(address,del);
+         initDiscoveryDomain ("");
+       }
+       else
+         y2milestone("Delete canceled");
+     }
+     break;
+   case `add:
+     map<string, any> add_map = DiscoveryDomainSetDetailDialog($["VALUE":""]);
+     if (add_map!=$[])
+     {
+         IsnsServer::addDD(address, add_map["VALUE"]:"");
+	 initDiscoveryDomain ("");
+     }
+     break;
+   case `display:
+       string dd_id = (string)UI::QueryWidget(`id(`dd_table),`CurrentItem);
+       string name = ((term)UI::QueryWidget(`id(`dd_table),`Item(dd_id)))[1]:"";
+       map<string, any> add_map1 = DisplayDiscoveryDomainDialog(name,dd_id);
+     break;
+  }
+ }
+}
+
+symbol handleDiscoveryDomainSet(string key, map event){
+ string mycurrent = (string)UI::QueryWidget(`id (`dds_table),`CurrentItem);
+ y2milestone("handleDiscoveryDomainSet action called: %1 -- %2 -- %3", key, event, mycurrent);
+
+ if ( event["EventReason"]:"" == "Activated" ){
+  switch((symbol)event["WidgetID"]:nil){
+   case `delete:
+     string del = (string)UI::QueryWidget(`id (`dds_table),`CurrentItem);
+     if (del != nil){
+         if (Popup::ContinueCancel(_("Really delete the selected item?"))) {
+               IsnsServer::deleteDDS(address,del);
+               initDiscoveryDomainSet ("");
+         }
+         else
+	       y2milestone("Delete canceled");
+         }
+     break;
+   case `add:
+     map<string, any> add_map = DiscoveryDomainSetDetailDialog($["VALUE":""]);
+     if (add_map!=$[]){
+        IsnsServer::addDDS(address,  add_map["VALUE"]:"");
+  	initDiscoveryDomainSet ("");
+     }
+     break;
+   case `display:
+       string dds_id = (string)UI::QueryWidget(`id(`dds_table),`CurrentItem);
+       string name = ((term)UI::QueryWidget(`id(`dds_table),`Item(dds_id)))[1]:"";
+       map<string, any> add_map1 = DisplayDiscoveryDomainSetDialog(name,dds_id);
+     break;
+  }
+ }
+}
+
+}

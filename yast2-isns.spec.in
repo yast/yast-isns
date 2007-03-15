@@ -1,0 +1,32 @@
+@HEADER-COMMENT@
+
+@HEADER@
+
+BuildRequires:  docbook-xsl-stylesheets doxygen libxslt perl-XML-Writer popt-devel sgml-skel update-desktop-files yast2 yast2-devtools yast2-packagemanager-devel yast2-perl-bindings yast2-testsuite
+Requires:       yast2
+BuildArchitectures:	noarch
+Summary:        Configuration of isns
+
+%description
+Configuration of isns
+-
+
+@PREP@
+
+@BUILD@
+
+@INSTALL@
+
+@CLEAN@
+
+%files
+%defattr(-,root,root)
+%dir /usr/share/YaST2/include/isns
+/usr/share/YaST2/include/isns/*
+/usr/share/YaST2/clients/isns.ycp
+/usr/share/YaST2/clients/isns_*.ycp
+/usr/share/YaST2/clients/inst_isns.ycp
+/usr/share/YaST2/modules/IsnsServer.*
+%{prefix}/share/applications/YaST2/isns.desktop
+/usr/share/YaST2/scrconf/isnsd.scr
+%doc %{prefix}/share/doc/packages/yast2-isns

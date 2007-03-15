@@ -1,0 +1,253 @@
+/**
+ * File:	include/isns-server/dialogs.ycp
+ * Package:	Configuration of isns-server
+ * Summary:	Dialogs definitions
+ * Authors:	Michal Zugec <mzugec@suse.cz>
+ *
+ * $Id: dialogs.ycp 35355 2007-01-15 15:06:49Z mzugec $
+ */
+
+{
+
+textdomain "isns";
+
+import "Label";
+import "Wizard";
+import "IsnsServer";
+import "CWMTab";
+import "CWM";
+import "CWMServiceStart";
+import "CWMFirewallInterfaces";
+import "TablePopup";
+
+include "isns/helps.ycp";
+include "isns/widgets.ycp";
+
+// store current here
+string current_tab = "service";
+
+map tabs_descr = $[
+// first tab - service status and firewall
+        "service":$[
+         "header"       : _("Service"),
+         "contents"     :
+                          `VBox(
+                          `VStretch(),
+                          `HBox(
+                           `HStretch(),
+                           `HSpacing (1),
+                            `VBox(
+                                "ipaddress",
+                                `VSpacing (2),
+                                "auto_start_up",
+                                `VSpacing (2),
+                                "firewall",
+                                `VSpacing (2)
+                                ),
+                           `HSpacing (1),
+                           `HStretch()
+                              ),
+                          `VStretch()
+                        ),
+         "widget_names" : ["ipaddress", "auto_start_up", "firewall" ]
+         ],
+
+        "members":$[
+         "header"       : _("ISCSI Nodes"),
+         "contents"     :
+                          `VBox(
+                          `VStretch(),
+                          `HBox(
+                           `HStretch(),
+                           `HSpacing (1),
+                            `VBox(
+				"members_display",
+                                `VSpacing (2)
+                                ),
+                           `HSpacing (1),
+                           `HStretch()
+                              ),
+                          `VStretch()
+                        ),
+         "widget_names" : [ "members_display" ]
+         ],
+
+// third tab - Discovery Domains
+        "discoverydomains":$[
+         "header"       : _("Discovery Domains"),
+         "contents"     :
+                          `VBox(
+                          `VStretch(),
+                          `HBox(
+                           `HStretch(),
+                           `HSpacing (1),
+                            `VBox(
+				"dd_display",
+                                `VSpacing (2)
+                                ),
+                           `HSpacing (1),
+                           `HStretch()
+                              ),
+                          `VStretch()
+                        ),
+         "widget_names" : [ "dd_display" ]
+         ],
+
+// fourth tab - discovery domain sets
+        "discoverydomainsets":$[
+         "header"       : _("Discovery Domains Sets"),
+         "contents"     :
+                          `VBox(
+                          `VStretch(),
+                          `HBox(
+                           `HStretch(),
+                           `HSpacing (1),
+                            `VBox(
+                                "dds_display",
+                                `VSpacing (2)
+                                ),
+                           `HSpacing (1),
+                           `HStretch()
+                               ),
+                          `VStretch()
+                        ),
+         "widget_names" : [ "dds_display" ]
+        ]
+
+       ];
+
+
+
+map<string, map <string, any> > widgets = $[
+            "auto_start_up" : CWMServiceStart::CreateAutoStartWidget ($[
+                "get_service_auto_start" : IsnsServer::GetStartService,
+                "set_service_auto_start" : IsnsServer::SetStartService,
+                // radio button (starting isnstarget service - option 1)
+                "start_auto_button" : _("When &Booting"),
+                // radio button (starting isnstarget service - option 2)
+                "start_manual_button" : _("&Manually"),
+                "help" : sformat (CWMServiceStart::AutoStartHelpTemplate (),
+                    // part of help text, used to describe radiobuttons (matching starting isnsitarget service but without "&")
+                    _("When Booting"),
+                    // part of help text, used to describe radiobuttons (matching starting isnstarget service but without "&")
+                    _("Manually")
+                ),
+            ]),
+
+         "ipaddress" : $[
+            "widget" : `custom,
+            "custom_widget" :
+            `HBox(
+            `TextEntry(`id(`isnsaddress),_("Address of ISNS Server")),
+            `PushButton(`id(`saveaddress),_("SaveAddress"))
+            ),
+            "init"   : initAddress,
+            "handle" : handleAddress
+          ],
+
+// second tab - members 
+
+	// firewall
+	"firewall" : CWMFirewallInterfaces::CreateOpenFirewallWidget ($[
+	        "services" : [ "isns-server" ],
+	        "display_details" : true,
+	      ]),
+
+	// members dialog
+       "members_display" : $[
+		"widget" : `custom,
+		"custom_widget" :
+		`VBox(
+			`Heading (_("ISCSI Nodes")),
+			`Table(`id(`members_table),
+				`header(_("Name")),
+				[]),
+		 `Left(
+		  `HBox(
+		      `PushButton(`id(`delete), _("Delete"))
+		       )
+		      )
+		     ),
+		"init"	: initISCSI,
+		"handle" : handleISCSI,
+		"help" : HELPS["members_display"]:""
+	],
+
+	// discovery domain dialog
+       "dd_display" : $[
+		"widget" : `custom,
+		"custom_widget" :
+		`VBox(
+			`Heading (_("Discovery Domains")),
+			`Table(`id(`dd_table),
+				`header(_("Name")),
+				[]),
+		 `Left(
+		  `HBox(
+		      `PushButton(`id(`add), _("Add")),
+		      `PushButton(`id(`delete), _("Delete")),
+		      `PushButton(`id(`display), _("Display Members"))
+		       )
+		      )
+		     ),
+		"init"	: initDiscoveryDomain,
+		"handle" : handleDiscoveryDomain,
+		"help" : HELPS["dd_display"]:""
+	],
+
+	// discovery domain set dialog
+       "dds_display" : $[
+		"widget" : `custom,
+		"custom_widget" :
+		  `VBox(
+			`Heading (_("Discovery Domains Sets")),
+			`Table(`id(`dds_table),
+				`header(_("Name")),
+				[]),
+		        `Left(
+		          `HBox(
+		             `PushButton(`id(`add), _("Add")),
+		             `PushButton(`id(`delete), _("Delete")),
+		             `PushButton(`id(`display), _("Display Members"))
+		           )
+                        )
+		   ),
+		"init"	: initDiscoveryDomainSet,
+		"handle" : handleDiscoveryDomainSet,
+		"help" : HELPS["dds_display"]:""
+	],
+
+	];
+
+
+/**
+ * Summary dialog
+ * @return dialog result
+ */
+// Main dialog - tabbed
+any SummaryDialog() {
+    string caption = _("isns service");
+    //curr_target = "";
+    map widget_descr = $[
+        "tab": CWMTab::CreateWidget($[
+            "tab_order": [ "service","members", "discoverydomains", "discoverydomainsets" ],
+            "tabs": tabs_descr,
+            "widget_descr": widgets,
+            "initial_tab" : current_tab,
+            "tab_help" : _("<h1>isns service</h1>"),
+        ]),
+    ];
+    term contents = `VBox( "tab" );
+    list<map <string, any> > w = CWM::CreateWidgets (["tab"], (map <string, map <string, any> >)widget_descr);
+    string help = CWM::MergeHelps(w);
+    contents = CWM::PrepareDialog(contents, w);
+
+    Wizard::SetContentsButtons(caption, contents, help, Label::NextButton (), Label::FinishButton ());
+    Wizard::HideBackButton();
+
+    symbol ret = CWM::Run(w, $[`abort:ReallyAbort ]);
+    return ret;
+}
+
+/* EOF */
+}

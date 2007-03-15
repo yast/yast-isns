@@ -1,0 +1,24 @@
+{
+        include "testsuite.ycp";
+
+        map READ = $[
+             "target" : $[
+                "tmpdir" : "/tmp"
+             ],
+	     "init" :$[
+	      "scripts" :$[
+	       "exists" : true,
+	       "runlevel" : $[ "isns":$["start":["3","5"], "stop":["3", "5"]] ],
+	       "comment" : $["isns":$["defstart":["3", "5"], "defstop":[], "description":"", "provides":["isns"], "reqstart":["$network"], "reqstop":[], "shortdescription":"Starts and stops the isns server", "shouldstart":[], "shouldstop":[]]]
+	      ]
+	     ]
+        ];
+        TESTSUITE_INIT ([READ, $[], $[]], nil);
+
+        import "IsnsServer";
+
+
+//        TEST( ``{ return IsnsServer::GetStartService();}, [ READ, $[], $[] ], nil );
+//        TEST( ``{ return IsnsServer::SetStartService(true);}, [ READ, $[], $[] ], nil );
+}
+

@@ -1,0 +1,52 @@
+[Desktop Entry]
+X-SuSE-DocTeamID=ycc_isns
+Type=Application
+Categories=Qt;X-SuSE-YaST;X-SuSE-YaST-Misc;
+
+X-KDE-ModuleType=Library
+X-KDE-RootOnly=true
+X-KDE-HasReadOnlyMode=true
+X-KDE-Library=yast2
+X-SuSE-YaST-Call=isns
+
+X-SuSE-YaST-Group=Net_advanced
+X-SuSE-YaST-Argument=
+X-SuSE-YaST-RootOnly=true
+X-SuSE-YaST-AutoInst=all
+X-SuSE-YaST-Geometry=
+X-SuSE-YaST-SortKey=
+X-SuSE-YaST-AutoInstResource=isns
+
+Icon=yast-iscsi-server
+Exec=/sbin/yast2 isns 
+
+Name=ISNS Server
+GenericName=Configure an ISNS server
+X-KDE-SubstituteUID=true
+
+X-SuSE-translate=true
+Name[cs]=iSCSI iniciátor
+GenericName[cs]=Konfigurovat isns server
+Name[da]=iSCSI Initiering
+GenericName[da]=Konfiguration af isns server
+Name[de]=iSCSI-Initiator
+GenericName[de]=Konfiguration eines isns server
+Name[es]=Iniciador iSCSI
+GenericName[es]=Permite configurar un isns server
+Name[fi]=ISCSI-aloittaja
+GenericName[fi]=Määritä iSCSI-aloittaja
+Name[fr]=Initiateur iSCSI
+GenericName[fr]=Configurer un initiateur ISNS
+Name[hu]=iSCSI-kliens
+GenericName[hu]=iSCSI-kliens
+GenericName[it]=Configura uno strumento di avvio ISNS
+GenericName[ja]=iSCSIイニシエータを設定する
+Name[ko]=iSCSI 이니시에이터
+Name[pl]=Klient iSCSI
+GenericName[pl]=Konfiguracja klienta ISNS
+Name[pt_BR]=Iniciador iSCSI
+GenericName[pt_BR]=Configurar um iniciador ISNS
+Name[zh_CN]=iSCSI 启动程序
+GenericName[zh_CN]=配置 ISNSS 启动程序
+Name[zh_TW]=iSCSI 起始程式
+GenericName[zh_TW]=設定 ISNS 起始程式

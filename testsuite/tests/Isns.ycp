@@ -1,0 +1,13 @@
+{
+
+// testedfiles: Isns.ycp
+
+include "testsuite.ycp";
+TESTSUITE_INIT([], nil);
+
+import "IsnsServer";
+
+DUMP("IsnsServer::Modified");
+TEST(``(IsnsServer::Modified()), [], nil);
+
+}
