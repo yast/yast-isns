@@ -53,7 +53,7 @@ map tabs_descr = $[
          ],
 
         "members":$[
-         "header"       : _("ISCSI Nodes"),
+         "header"       : _("iSCSI Nodes"),
          "contents"     :
                           `VBox(
                           `VStretch(),
@@ -158,9 +158,9 @@ map<string, map <string, any> > widgets = $[
 		"widget" : `custom,
 		"custom_widget" :
 		`VBox(
-			`Heading (_("ISCSI Nodes")),
+			`Heading (_("iSCSI Nodes")),
 			`Table(`id(`members_table),
-				`header(_("Name")),
+				`header(_("Name"),_("Node Type")),
 				[]),
 		 `Left(
 		  `HBox(

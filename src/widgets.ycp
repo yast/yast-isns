@@ -41,14 +41,14 @@ map <string, any> DisplayAllMembersDialog(string dd_name, string dd_id){
   map <string, any> ret_map = $[];
   term iscsi_member_dialog =
      `VBox(
-        `Heading("Add ISCSI node to Discovery Domain"),
+        `Heading(_("Add iSCSI node to Discovery Domain")),
         `Label(dd_name),
         `HSpacing(50),
         `Heading (_("Nodes")),
         `HBox(
           `VSpacing(10),
           `Table(`id(`members_table),
-            `header(_("Name")),
+            `header(_("Name"),_("Node Type")),
             [])
         ),
 	`Left(
@@ -178,7 +178,7 @@ map <string, any> DisplayDiscoveryDomainDialog(string dd_name, string dd_id){
         `HBox(
           `VSpacing(10),
           `Table(`id(`dd_members_table),
-            `header(_("Name")),
+            `header(_("Name"),_("Node Type")),
             [])
         ),
 	`Left(
@@ -224,10 +224,11 @@ void initAddress (string key){
 
 void initISCSI (string key){
     integer count = 0;
+    string type = "Target or Initiator";
     list <term> inc_items = [];
 
-    foreach(string key, IsnsServer::readISCSI(address), {
-       inc_items = add(inc_items, `item(`id(count), key));
+    foreach(map <string,any> key, IsnsServer::readISCSI(address), {
+       inc_items = add(inc_items, `item(`id(count), key["NODE"]:"",key["TYPE"]:""));
        count = count + 1;
     });
 
@@ -241,9 +242,9 @@ void initDDISCSIMembers (string key) ``{
     list <term> inc_items = [];
 
     ddid=key;
-    foreach(string key, IsnsServer::readDDMembers(address,ddid), {
+    foreach(map <string,any> result, IsnsServer::readDDMembers(address,ddid), {
        y2milestone("iscsiMembers: %1",key);
-       inc_items = add(inc_items, `item(`id(count), key));
+       inc_items = add(inc_items, `item(`id(count), result["NODE"]:"",result["TYPE"]:""));
        count = count +1;
    });
 

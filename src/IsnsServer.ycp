@@ -153,8 +153,10 @@ boolean setServiceStatus(){
  return true;
 }
 
-global list <string> readISCSI(string address) {
-   list <string> values = [];
+global list <map <string,any> > readISCSI(string address) {
+   list <map <string,any> > values = [];
+   map <string,any> temp = $[];
+
    string command = sformat("isnsadm -a %1 -t -q iscsi",address);
    map<string, any> result=  (map<string, any>) SCR::Execute(.target.bash_output, command, $[]);
    foreach(string row, splitstring(result["stdout"]:"","\n"), {
@@ -166,16 +168,49 @@ global list <string> readISCSI(string address) {
      if (pos != nil && pos > 0)
      {
        key = substring(row, 0, pos );
-       val = substring(row, pos + 2);
      }
 
      if (key == "iSCSI ID  ") {
-       values = add(values, val );
+       val = substring(row, pos + 2);
+       temp["NODE"] = val;
      }
 
+     if (key == "Type") {
+       val = substring(row, pos + 6);
+       temp["TYPE"] = val;
+       values = add(values, temp );
+     }
    });
 
 return values;
+}
+
+global string readISCSI_type(string address,string index) {
+   string temp = "";
+
+   string command = sformat("isnsadm -a %1 -t -q iscsi -n %2",address,index);
+   map<string, any> result=  (map<string, any>) SCR::Execute(.target.bash_output, command, $[]);
+   foreach(string row, splitstring(result["stdout"]:"","\n"), {
+
+     integer pos = findfirstof(row,":");
+     string key = "";
+     string val = "";
+
+     if (pos != nil && pos > 0)
+     {
+       key = substring(row, 0, pos );
+       val = substring(row, pos + 6);
+     }
+
+     y2milestone("iSCSIRead_type %1",key);
+
+     if (key == "Type") {
+       y2milestone("iSCSIRead_type return value is %1",val);
+       temp = val;
+     }
+   });
+
+return temp;
 }
 
 
@@ -209,8 +244,9 @@ global list <string> readDDS(string address) {
 return values;
 }
 
-global list <string> readDDMembers(string address, string id) {
-   list <string> values = [];
+global list <map <string,any> > readDDMembers(string address, string id) {
+   list <map <string,any> > values = [];
+   map <string,any> temp = $[];
    string ddid = "";
 
    y2milestone("readDDSMembers %1 %2",address, id);
@@ -231,8 +267,14 @@ global list <string> readDDMembers(string address, string id) {
      }
 
      if (key == "   DD iSCSI Member ") {
-       values = add(values, val );
+       temp["NODE"] = val;
      }
+
+     if (key == "   DD iSCSI Member Index  ") {
+       temp["TYPE"] = readISCSI_type(address,val);
+       values = add(values, temp );
+     }
+
    });
 
 return values;
