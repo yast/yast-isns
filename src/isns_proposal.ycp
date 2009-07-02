@@ -38,6 +38,7 @@ if(func == "MakeProposal") {
 	IsnsServer::Read();
 	Progress::set (progress_orig);
     }
+/*
     list sum = IsnsServer::Summary();
     proposal = sum[0]:"";
 
@@ -46,8 +47,10 @@ if(func == "MakeProposal") {
 	"warning_level" : warning_level,
 	"warning" : warning,
     ];
+*/
 }
 /* run the module */
+/*
 else if(func == "AskUser") {
     map stored = IsnsServer::Export();
     symbol seq = (symbol) WFM::CallFunction("isns", [.propose]);
@@ -58,6 +61,7 @@ else if(func == "AskUser") {
 	"workflow_sequence" : seq
     ];
 }
+*/
 /* create titles */
 else if(func == "Description") {
     ret = $[

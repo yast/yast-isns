@@ -1,4 +1,29 @@
 -------------------------------------------------------------------
-Fri Jun 26 15:57:05 2009 - mzugec@novell.com
+Thu Jul  2 15:42:01 CEST 2009 - mzugec@suse.cz
 
-- initial version
+- submitted into yast svn, fixed some build issues 
+
+-------------------------------------------------------------------
+Tue Sep 18 12:00:00 CEST 2007 - wrwhitehead@novell.com
+- Fixed Bug #325129 - iSNS server not running feedback and
+  updated dialogs to display only the non-selected nodes
+
+-------------------------------------------------------------------
+Tue Sep 04 12:00:00 CEST 2007 - wrwhitehead@novell.com
+- Updated display pages to be more user friendly.  Added help text.
+
+-------------------------------------------------------------------
+Wed Aug 29 12:00:00 CEST 2007 - wrwhitehead@novell.com
+- Resized display pages and fixed some typeos in the text labels
+
+-------------------------------------------------------------------
+Fri Apr 13 12:00:00 CEST 2007 - wrwhitehead@novell.com
+- Fixed Bug 257976 Note displaying target/initiator types
+
+-------------------------------------------------------------------
+Thu Feb 15 12:00:00 CEST 2007 - WRWhitehead@novell.com
+- initial version (FATE #233)
+
+
+
+

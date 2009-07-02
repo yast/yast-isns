@@ -1,7 +1,4 @@
 [Desktop Entry]
-X-SuSE-translate=true
-X-SuSE-DocTeamID=ycc_isns
-X-SuSE-DocTeamID=ycc_isns
 Type=Application
 Categories=Qt;X-SuSE-YaST;X-SuSE-YaST-Net_advanced;
 
@@ -25,4 +22,3 @@ Exec=/sbin/yast2 isns
 Name=iSNS Server
 GenericName=Configure an iSNS server
 X-KDE-SubstituteUID=true
-

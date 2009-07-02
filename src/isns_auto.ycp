@@ -43,26 +43,36 @@ y2debug("func=%1", func);
 y2debug("param=%1", param);
 
 /* Create a summary*/
+/*
 if(func == "Summary") {
     ret = select(IsnsServer::Summary(), 0, "");
 }
+*/
 /* Reset configuration */
-else if (func == "Reset") {
-    IsnsServerscsiClient::Import($[]);
+//else 
+/*
+if (func == "Reset") {
+    IsnsServer::Import($[]);
     ret = $[];
 }
+*/
 /* Change configuration (run AutoSequence) */
-else if (func == "Change") {
-    ret = IscsiClientAutoSequence();
+//else 
+if (func == "Change") {
+    ret = IsnsServerAutoSequence();
 }
 /* Import configuration */
+/*
 else if (func == "Import") {
     ret = IsnsServer::Import(param);
 }
+*/
 /* Return actual state */
+/*
 else if (func == "Export") {
     ret = IsnsServer::Export();
 }
+*/
 /* Return needed packages */
 else if (func == "Packages") {
     ret = IsnsServer::AutoPackages();
