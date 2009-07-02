@@ -1,0 +1,31 @@
+@HEADER-COMMENT@
+
+@HEADER@
+Requires:	yast2
+BuildRequires:	perl-XML-Writer update-desktop-files yast2 yast2-devtools yast2-testsuite
+
+BuildArchitectures:	noarch
+
+Summary:	Configuration of isns
+
+%description
+-
+
+@PREP@
+
+@BUILD@
+
+@INSTALL@
+
+@CLEAN@
+
+%files
+%defattr(-,root,root)
+%dir @yncludedir@/isns
+@yncludedir@/isns/*
+@clientdir@/isns.ycp
+@clientdir@/isns_*.ycp
+@moduledir@/Isns.*
+@moduledir@/Isns2.*
+@desktopdir@/isns.desktop
+%doc @docdir@
