@@ -138,7 +138,7 @@ map<string, map <string, any> > widgets = $[
             "custom_widget" :
             `VBox(
               `HBox(
-               `TextEntry(`id(`isnsaddress),_("Address of iSNS Server"))
+               `InputField(`id(`isnsaddress), `opt(`hstretch), _("Address of iSNS Server"))
                 )
             ),
             "init"   : initAddress,
@@ -292,8 +292,12 @@ any SummaryDialog() {
     string help = CWM::MergeHelps(w);
     contents = CWM::PrepareDialog(contents, w);
 
-    Wizard::SetContentsButtons(caption, contents, help, Label::NextButton (), Label::FinishButton ());
+    Wizard::SetContentsButtons(caption, contents, help, Label::BackButton (), Label::OKButton ());
+    Wizard::SetNextButton(`next, Label::OKButton());
+    Wizard::SetAbortButton(`abort, Label::CancelButton());
     Wizard::HideBackButton();
+//    Wizard::SetContentsButtons(caption, contents, help, Label::NextButton (), Label::FinishButton ());
+//    Wizard::HideBackButton();
 
     symbol ret = CWM::Run(w, $[`abort:ReallyAbort ]);
     return ret;
