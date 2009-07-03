@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Jul  3 13:38:15 CEST 2009 - mzugec@suse.de
+
+- fixed typo in help text (bnc#439179)
+- 2.18.1 
+
+-------------------------------------------------------------------
 Thu Jul  2 15:42:01 CEST 2009 - mzugec@suse.cz
 
 - submitted into yast svn, fixed some build issues 
