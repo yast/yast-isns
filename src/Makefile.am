@@ -11,6 +11,7 @@ client_DATA =			\
 ynclude_DATA =			\
 	helps.ycp		\
 	wizards.ycp		\
+	widgets.ycp		\
 	dialogs.ycp		\
 	complex.ycp
 
