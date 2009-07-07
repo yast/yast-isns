@@ -1,0 +1,63 @@
+/**
+ * File:	include/isns-server/complex.ycp
+ * Package:	Configuration of isns-server
+ * Summary:	Dialogs definitions
+ * Authors:	Michal Zugec <mzugec@suse.cz>
+ *
+ * $Id: complex.ycp 27936 2006-02-13 20:01:14Z olh $
+ */
+
+{
+
+textdomain "isns";
+
+import "Label";
+import "Popup";
+import "Wizard";
+import "Wizard_hw";
+import "IsnsServer";
+
+include "isns/helps.ycp";
+
+/**
+ * Return a modification status
+ * @return true if data was modified
+ */
+boolean Modified() {
+    return IsnsServer::Modified();
+}
+
+boolean ReallyAbort() {
+    return !IsnsServer::Modified() || Popup::ReallyAbort(true);
+}
+
+boolean PollAbort() {
+    return UI::PollInput() == `abort;
+}
+
+/**
+ * Read settings dialog
+ * @return `abort if aborted and `next otherwise
+ */
+symbol ReadDialog() {
+    Wizard::RestoreHelp(HELPS["read"]:"");
+    // IsnsServer::AbortFunction = PollAbort;
+    boolean ret = IsnsServer::Read();
+    return ret ? `next : `abort;
+}
+
+/**
+ * Write settings dialog
+ * @return `abort if aborted and `next otherwise
+ */
+symbol WriteDialog() {
+    Wizard::RestoreHelp(HELPS["write"]:"");
+    // IsnsServer::AbortFunction = PollAbort;
+    boolean ret = IsnsServer::Write();
+    return ret ? `next : `abort;
+}
+
+
+
+/* EOF */
+}

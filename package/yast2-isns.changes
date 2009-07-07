@@ -1,0 +1,40 @@
+-------------------------------------------------------------------
+Fri Jul  3 15:14:10 CEST 2009 - mzugec@suse.de
+
+- button ordering (bnc#440543)
+- 2.17.0 
+
+-------------------------------------------------------------------
+Fri Jul  3 13:38:15 CEST 2009 - mzugec@suse.de
+
+- fixed typo in help text (bnc#439179)
+
+-------------------------------------------------------------------
+Thu Jul  2 15:42:01 CEST 2009 - mzugec@suse.cz
+
+- submitted into yast svn, fixed some build issues 
+
+-------------------------------------------------------------------
+Tue Sep 18 12:00:00 CEST 2007 - wrwhitehead@novell.com
+- Fixed Bug #325129 - iSNS server not running feedback and
+  updated dialogs to display only the non-selected nodes
+
+-------------------------------------------------------------------
+Tue Sep 04 12:00:00 CEST 2007 - wrwhitehead@novell.com
+- Updated display pages to be more user friendly.  Added help text.
+
+-------------------------------------------------------------------
+Wed Aug 29 12:00:00 CEST 2007 - wrwhitehead@novell.com
+- Resized display pages and fixed some typeos in the text labels
+
+-------------------------------------------------------------------
+Fri Apr 13 12:00:00 CEST 2007 - wrwhitehead@novell.com
+- Fixed Bug 257976 Note displaying target/initiator types
+
+-------------------------------------------------------------------
+Thu Feb 15 12:00:00 CEST 2007 - WRWhitehead@novell.com
+- initial version (FATE #233)
+
+
+
+

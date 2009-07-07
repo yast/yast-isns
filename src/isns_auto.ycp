@@ -1,0 +1,111 @@
+/**
+ * File:	clients/isns_auto.ycp
+ * Package:	Configuration of isns
+ * Summary:	Client for autoinstallation
+ * Authors:	Michal Zugec <mzugec@suse.cz>
+ *
+ * $Id: isns_auto.ycp 35560 2007-01-22 08:02:23Z mzugec $
+ *
+ * This is a client for autoinstallation. It takes its arguments,
+ * goes through the configuration and return the setting.
+ * Does not do any changes to the configuration.
+ */
+
+/**
+ * @param function to execute
+ * @param map/list of isns settings
+ * @return map edited settings, Summary or boolean on success depending on called function
+ * @example map mm = $[ "FAIL_DELAY" : "77" ];
+ * @example map ret = WFM::CallFunction ("isns_auto", [ "Summary", mm ]);
+ */
+
+{
+
+textdomain "isns";
+
+y2milestone("----------------------------------------");
+y2milestone("IsnsServer auto started");
+
+import "IsnsServer";
+include "isns/wizards.ycp";
+
+any ret = nil;
+string func = "";
+map param = $[];
+
+/* Check arguments */
+if(size(WFM::Args()) > 0 && is(WFM::Args(0), string)) {
+    func = (string)WFM::Args(0);
+    if(size(WFM::Args()) > 1 && is(WFM::Args(1), map))
+	param = (map) WFM::Args(1);
+}
+y2debug("func=%1", func);
+y2debug("param=%1", param);
+
+/* Create a summary*/
+/*
+if(func == "Summary") {
+    ret = select(IsnsServer::Summary(), 0, "");
+}
+*/
+/* Reset configuration */
+//else 
+/*
+if (func == "Reset") {
+    IsnsServer::Import($[]);
+    ret = $[];
+}
+*/
+/* Change configuration (run AutoSequence) */
+//else 
+if (func == "Change") {
+    ret = IsnsServerAutoSequence();
+}
+/* Import configuration */
+/*
+else if (func == "Import") {
+    ret = IsnsServer::Import(param);
+}
+*/
+/* Return actual state */
+/*
+else if (func == "Export") {
+    ret = IsnsServer::Export();
+}
+*/
+/* Return needed packages */
+else if (func == "Packages") {
+    ret = IsnsServer::AutoPackages();
+}
+else if (func == "GetModified") {
+    ret = IsnsServer::modified;
+}
+/* Read current state */
+else if (func == "Read") {
+    import "Progress";
+    boolean progress_orig = Progress::set (false);
+    ret = IsnsServer::Read();
+    Progress::set (progress_orig);
+}
+/* Write givven settings */
+else if (func == "Write") {
+    import "Progress";
+    boolean progress_orig = Progress::set (false);
+    IsnsServer::write_only = true;
+    ret = IsnsServer::Write();
+    Progress::set (progress_orig);
+}
+/* Unknown function */
+else {
+    y2error("Unknown function: %1", func);
+    ret = false;
+}
+
+y2debug("ret=%1", ret);
+y2milestone("IsnsServer auto finished");
+y2milestone("----------------------------------------");
+
+return ret;
+
+/* EOF */
+}

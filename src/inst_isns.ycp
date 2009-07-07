@@ -1,0 +1,56 @@
+/**
+ * File:	clients/isns.ycp
+ * Package:	Configuration of isns
+ * Summary:	Main file
+ * Authors:	Michal Zugec <mzugec@suse.cz>
+ *
+ * $Id: inst_iscsi-client.ycp 35883 2007-02-06 09:51:05Z mzugec $
+ *
+ * Main file for iscsi-client configuration. Uses all other files.
+ */
+
+{
+
+/***
+ * <h3>Configuration of isns</h3>
+ */
+
+textdomain "isns";
+
+/* The main () */
+y2milestone ("----------------------------------------");
+y2milestone ("IsnsServer module started");
+
+import "Progress";
+import "Report";
+import "Summary";
+import "ModuleLoading";
+import "Packages";
+import "Installation";
+include "isns/wizards.ycp";
+
+/* main ui function */
+any ret = nil;
+
+y2milestone("start isns");
+// check initiator name, create if not exists
+WFM::Execute (.local.bash,"test -d /etc/isns/ && /bin/cp -a /etc/isns/* " + Installation::destdir + "/etc/isns/");
+//IsnsServer::checkInitiatorName();
+
+/ModuleLoading::Load("iscsi_tcp", "", "", "", false, true);
+// start daemon before
+SCR::Execute(.background.run_output_err, "isnsd");
+// run dialog
+ret = MainSequence();
+y2debug("MainSequence ret=%1", ret);
+// add package isns to installed system
+Packages::addAdditionalPackage("isns");
+
+/* Finish */
+y2milestone("IsnsServer module finished");
+y2milestone("----------------------------------------");
+
+return ret;
+
+/* EOF */
+}
