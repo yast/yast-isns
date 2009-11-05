@@ -2,14 +2,14 @@
  *   Read(.ietd.Compression)
  *   (["yes"])
  *
- *   Write(.ietd.Compression, "no")
+ *   Write(.isns.Compression, "no")
  *   (true)
  *
  * Fore more information about possible keys and values
  * consult with the slp_config man pages `man slp_config`.
  */
 
-.etc.iscsid
+.etc.isns
 
 `ag_ini(
     `IniAgent( "/etc/isns/isns.conf",
