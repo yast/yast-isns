@@ -22,7 +22,7 @@ map <string, any> DiscoveryDomainDetailDialog(map<string, any> values_before){
   map <string, any> ret_map = $[];
   term dd_dialog =
      `VBox(
-       `Heading("Create New Discovery Domain"),
+       `Heading(_("Create New Discovery Domain")),
        `HSpacing(50),
        `HWeight(3,`InputField( `id( `ddentry ), `opt(`hstretch), _("Discovery Domain Name" ))) ,
        `VSpacing(1),
