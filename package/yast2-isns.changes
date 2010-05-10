@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon May 10 14:50:49 CEST 2010 - mzugec@suse.de
+
+- fixed iscsid and isns agent collision (bnc#600301)
+- 2.17.2 
+
+-------------------------------------------------------------------
 Tue Feb  2 09:44:21 CET 2010 - mzugec@suse.cz
 
 - marked string for translation (bnc#446571)

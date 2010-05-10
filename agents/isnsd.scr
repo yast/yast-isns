@@ -9,7 +9,7 @@
  * consult with the slp_config man pages `man slp_config`.
  */
 
-.etc.iscsid
+.etc.isns
 
 `ag_ini(
     `IniAgent( "/etc/isns/isns.conf",
