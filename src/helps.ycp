@@ -54,7 +54,7 @@ Configure an iSNS server here.<br></p>
 "A list of all discovery domains are displayed.  For discovery domains, it is possible to <b>Create</b> a discovery domain and <b>Delete</b> them. <p>Deleting a domain removes the members from the domain but does not delete the iSCSI node members </p>"),
 
 	"dd_display_members"   :_(
-"A list of all iSCSI nodes are displayed by discovery domain.  Selecting another discovery domain refreshes the list with members from that discovery domain.  It is possible to <b>Add</b> an iSCSI node to a discovery domain or <b>Delete</b> thenode.  <p>Deleting a node removes it from the domain but does not delete the iSCSI node</p> <p>Creating an iSCSI node allows a not yet registered node to be added as a member of the discovery domain.  When the initiator or target registers this node then it becomes part of this domain</p>  <p>When an iSCSI initiator does a discovery request, the iSNS service returns all iSCSI node targets that are members of the same Discovery Domains.</p> "),
+"A list of all iSCSI nodes are displayed by discovery domain.  Selecting another discovery domain refreshes the list with members from that discovery domain.  It is possible to <b>Add</b> an iSCSI node to a discovery domain or <b>Delete</b> the node.  <p>Deleting a node removes it from the domain but does not delete the iSCSI node</p> <p>Creating an iSCSI node allows a not yet registered node to be added as a member of the discovery domain.  When the initiator or target registers this node then it becomes part of this domain</p>  <p>When an iSCSI initiator does a discovery request, the iSNS service returns all iSCSI node targets that are members of the same Discovery Domains.</p> "),
 
 	// dds table dialog
 	"dds_display" :_(

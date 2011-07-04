@@ -212,7 +212,7 @@ map <string, any> DisplayAllDiscoveryDomainsDialog(string dds_name, string dds_i
         `Heading(_("Add Discovery Domain to Set")),
         `Label(dds_name),
         `HSpacing(50),
-        `Heading (_("Avaliable Discovery Domains")),
+        `Heading (_("Available Discovery Domains")),
         `HBox(
           `VSpacing(10),
           `Table(`id(`dd_table),
