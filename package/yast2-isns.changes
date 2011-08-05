@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Aug  5 14:24:46 UTC 2011 - lslezak@suse.cz
+
+- fixed categories in the .desktop-file (bnc#607047)
+- 2.21.0
+
+-------------------------------------------------------------------
 Fri Aug  5 12:32:50 CEST 2011 - tgoettlicher@suse.de
 
 - fixed .desktop file (bnc #681249)
