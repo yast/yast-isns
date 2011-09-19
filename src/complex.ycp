@@ -14,7 +14,6 @@ textdomain "isns";
 import "Label";
 import "Popup";
 import "Wizard";
-import "Wizard_hw";
 import "IsnsServer";
 
 include "isns/helps.ycp";
