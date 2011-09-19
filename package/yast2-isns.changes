@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Sep 19 14:37:03 CEST 2011 - visnov@suse.cz
+
+- removed unneeded import
+- 2.21.1 
+
+-------------------------------------------------------------------
 Fri Aug  5 14:24:46 UTC 2011 - lslezak@suse.cz
 
 - fixed categories in the .desktop-file (bnc#607047)
