@@ -1,7 +1,8 @@
 @HEADER-COMMENT@
 
 @HEADER@
-Requires:	yast2
+# Wizard::SetDesktopTitleAndIcon
+Requires:	yast2 >= 2.21.22
 BuildRequires:	perl-XML-Writer update-desktop-files yast2 yast2-devtools yast2-testsuite
 
 BuildArchitectures:	noarch
