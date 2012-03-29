@@ -88,7 +88,7 @@ any IsnsServerSequence() {
 any IsnsServerAutoSequence() {
 
     /* Initialization dialog caption */
-    string caption = _("isns daemon configuration");
+    string caption = _("isns Daemon Configuration");
     /* Initialization dialog contents */
     term contents = `Label(_("Initializing..."));
 
