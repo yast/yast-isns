@@ -35,7 +35,7 @@ map <string, any> DiscoveryDomainDetailDialog(map<string, any> values_before){
           `HSpacing(3)
         ),
        `VSpacing(1),
-       `HBox( `PushButton(`id(`ok), Label::OKButton() ), `PushButton(`id(`cancel), Label::CancelButton() )),
+       `ButtonBox( `PushButton(`id(`ok), Label::OKButton() ), `PushButton(`id(`cancel), Label::CancelButton() )),
        `VSpacing(1)
       );
       UI::OpenDialog(dd_dialog);
@@ -108,7 +108,7 @@ map <string, any> DiscoveryDomainSetDetailDialog(map<string, any> values_before)
      `VBox(
         `VSpacing(1),
 	`Left( `HWeight(3,`InputField( `id( `ddsentry ), `opt(`hstretch), _("Discovery Domain Set Name") )) ),
-	`Left( `HBox( `PushButton(`id(`ok), Label::OKButton() ), `PushButton(`id(`cancel), Label::CancelButton() ))),
+	`Left( `ButtonBox( `PushButton(`id(`ok), Label::OKButton() ), `PushButton(`id(`cancel), Label::CancelButton() ))),
 	`VSpacing(1)
       ),
       `HSpacing(5)
@@ -138,7 +138,7 @@ map <string, any> CreateNode(map<string, any> values_before){
      `VBox(
       `VSpacing(1),
 	`Left( `HWeight(3,`InputField( `id( `nodeentry ), `opt(`hstretch),  _("iSCSI Node Name"))) ),
-	`Left( `HBox( `PushButton(`id(`ok), Label::OKButton() ), `PushButton(`id(`cancel), Label::CancelButton() ))),
+	`Left( `ButtonBox( `PushButton(`id(`ok), Label::OKButton() ), `PushButton(`id(`cancel), Label::CancelButton() ))),
      `VSpacing(1)
       ),
       `HSpacing(5)
