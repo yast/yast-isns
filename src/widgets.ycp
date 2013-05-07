@@ -529,8 +529,6 @@ symbol handleDiscoveryDomainSet(string key, map event){
  }
 }
 
-}
-
 symbol handleDiscoveryDomainMembers(string key, map event)
 {
    if ( event["EventReason"]:"" == "Activated" ){
@@ -622,4 +620,5 @@ integer checkISNS()
     }
 
     return 0;
+}
 }

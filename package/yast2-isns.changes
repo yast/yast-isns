@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue May  7 12:37:32 UTC 2013 - lslezak@suse.cz
+
+- fixed syntax error in widgets.ycp (wrogly placed bracket)
+
+-------------------------------------------------------------------
 Thu Apr 19 10:57:13 UTC 2012 - jsrain@suse.cz
 
 - use the ButtonBox widget (bnc#684863)
