@@ -12,7 +12,7 @@
 
 {
 
-module "isnsServer";
+module "IsnsServer";
 textdomain "isns";
 
 import "Progress";
