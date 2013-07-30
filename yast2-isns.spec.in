@@ -7,6 +7,8 @@ BuildRequires:	perl-XML-Writer update-desktop-files yast2 yast2-devtools yast2-t
 
 BuildArchitectures:	noarch
 
+Requires:       yast2-ruby-bindings >= 1.0.0
+
 Summary:	Configuration of isns
 
 %description
@@ -24,10 +26,9 @@ Summary:	Configuration of isns
 %defattr(-,root,root)
 %dir @yncludedir@/isns
 @yncludedir@/isns/*
-@clientdir@/isns.ycp
-@clientdir@/isns_*.ycp
-@moduledir@/*.ycp
-@moduledir@/*.ybc
+@clientdir@/isns.rb
+@clientdir@/isns_*.rb
+@moduledir@/*.rb
 @desktopdir@/isns.desktop
 @scrconfdir@/*.scr
 %doc @docdir@
