@@ -1,31 +1,28 @@
-# Makefile.am for isns/src
+# Sources for isns
+
+module_DATA = \
+  modules/IsnsServer.rb
+
+client_DATA = \
+  clients/isns.rb \
+  clients/isns_proposal.rb \
+  clients/isns_auto.rb \
+  clients/isns_finish.rb
 
 yncludedir = @yncludedir@/isns
+ynclude_DATA = \
+  include/isns/widgets.rb \
+  include/isns/wizards.rb \
+  include/isns/dialogs.rb \
+  include/isns/complex.rb \
+  include/isns/helps.rb
 
-client_DATA =			\
-	isns.ycp		\
-	isns_auto.ycp	\
-	isns_proposal.ycp	\
-	isns_finish.ycp
+scrconf_DATA = \
+  scrconf/isnsd.scr
 
-ynclude_DATA =			\
-	helps.ycp		\
-	wizards.ycp		\
-	widgets.ycp		\
-	dialogs.ycp		\
-	complex.ycp
+desktop_DATA = \
+  desktop/isns.desktop
 
-desktop_DATA =			\
-	isns.desktop
-
-module_DATA =			\
-	IsnsServer.ycp
-
-# create a symlink for local build, #145327
-isns:
-	ln -sf . $@
-ycpchook = isns
-
-EXTRA_DIST = $(client_DATA) $(ynclude_DATA) $(module_DATA) $(desktop_DATA)
+EXTRA_DIST = $(module_DATA) $(client_DATA) $(ynclude_DATA) $(scrconf_DATA) $(desktop_DATA)
 
 include $(top_srcdir)/Makefile.am.common
