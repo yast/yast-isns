@@ -97,12 +97,12 @@ module Yast
 
 
 
-    # test if required package ("isns") is installed
+    # test if required package ("open-isns") is installed
     def installed_packages
       ret = false
-      Builtins.y2milestone("Check if isns is installed")
+      Builtins.y2milestone("Check if open-isns is installed")
       if !Package.InstallMsg(
-          "isns",
+          "open-isns",
           _(
             "<p>To configure the isns service, the <b>%1</b> package must be installed.</p>"
           ) +
@@ -521,7 +521,7 @@ module Yast
       # check if user is root
       return false if !Confirm.MustBeRoot
       Progress.NextStage
-      # check if required packages ("isns") is installed
+      # check if required packages ("open-isns") is installed
       return false if !installed_packages
       Builtins.sleep(sl)
 
