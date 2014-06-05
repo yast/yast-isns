@@ -28,6 +28,7 @@ module Yast
       Yast.import "Mode"
       Yast.import "String"
       Yast.import "Map"
+      Yast.import "SystemdSocket"
 
       @serviceStatus = false
       @statusOnStart = false
@@ -46,6 +47,71 @@ module Yast
       # Abort function
       # return boolean return true if abort
       @AbortFunction = fun_ref(method(:Modified), "boolean ()")
+
+      @isnsd_socket = nil
+    end
+
+    def isnsdSocketActive?
+      if @isnsd_socket
+        @isnsd_socket.active?
+      else
+        log.error("isnsd.socket not found")
+        false
+      end
+    end
+
+    def isnsdSocketStart
+      if @isnsd_socket
+        @isnsd_socket.start
+      else
+        log.error("isnsd.socket not found")
+        false
+      end
+    end
+
+    def isnsdSocketStop
+      if @isnsd_socket
+        @isnsd_socket.stop
+     else
+        log.error("isnsd.socket not found")
+        false
+      end
+    end
+
+    def isnsdSocketEnabled?
+      if @isnsd_socket
+        @isnsd_socket.enabled?
+      else
+        log.error("isnsd.socket not found")
+        false
+      end
+    end
+
+    def isnsdSocketDisabled?
+      if @isnsd_socket
+        @isnsd_socket.disabled?
+      else
+        log.error("isnsd.socket not found")
+        false
+      end
+    end
+
+    def isnsdSocketEnable
+      if @isnsd_socket
+        @isnsd_socket.enable
+      else
+        log.error("isnsd.socket not found")
+        false
+      end
+    end
+
+    def isnsdSocketDisable
+      if @isnsd_socket
+        @isnsd_socket.disable
+      else
+        log.error("isnsd.socket not found")
+        false
+      end
     end
 
     # Abort function
@@ -120,12 +186,27 @@ module Yast
     # if not enabled, start it manually
     def getServiceStatus
       ret = true
-      if Service.Status("isns") == 0
+
+      # start service in stage initial (important for AutoYasT)
+      if Stage.initial
+        ret = Service.Start("isnsd")
+        if ret
+          log.info("Service isnsd started")
+        else
+          log.error("Cannot start service isnsd")
+        end
+        return ret
+      end
+
+      # start socket in installed system
+      @isnsd_socket = SystemdSocket.find!("isnsd")
+
+      if isnsdSocketActive?
         @statusOnStart = true
         @serviceStatus = true
       end
       Builtins.y2milestone("Service status = %1", @statusOnStart)
-      Service.Start("isns") if !@statusOnStart
+      isnsdSocketStart if !@statusOnStart
       ret
     end
 
@@ -135,12 +216,14 @@ module Yast
       start = @statusOnStart if !@serviceStatus
 
       if !start
-        Builtins.y2milestone("Stop isns service")
-        Service.Stop("isns")
+        Builtins.y2milestone("Stop isnsd service and socket")
+        isnsdSocketStop
+        Service.Stop("isnsd")
       else
-        Builtins.y2milestone("Start isns service")
+        Builtins.y2milestone("Start isnsd socket")
+        Service.Stop("isnsd") if Service.Status("isnsd") == 0
         @serviceStatus = true
-        Service.Start("isns")
+        isnsdSocketStart
       end
       true
     end
@@ -367,7 +450,7 @@ module Yast
     end
 
     def addISCSI(address, name, entityid)
-      Builtins.y2milestone("addDDS")
+      Builtins.y2milestone("addISCSI")
       command = Builtins.sformat(
         "isnsadm -a %1 -t -r iscsi -n '%2' -m '%3'",
         address,
@@ -635,7 +718,7 @@ module Yast
 
     # get/set service accessors for CWMService component
     def GetStartService
-      status = Service.Enabled("isns")
+      status = isnsdSocketEnabled?
       Builtins.y2milestone("isns service status %1", status)
       status
     end
@@ -644,9 +727,9 @@ module Yast
       Builtins.y2milestone("Set service status %1", status)
       @serviceStatus = status
       if status == true
-        Service.Enable("isns")
+        isnsdSocketEnable
       else
-        Service.Disable("isns")
+        isnsdSocketDisable
       end
 
       nil
