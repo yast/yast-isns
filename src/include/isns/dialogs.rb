@@ -124,7 +124,7 @@ module Yast
           "help"          => Ops.get_string(@HELPS, "ipaddress", "")
         },
         "firewall"            => CWMFirewallInterfaces.CreateOpenFirewallWidget(
-          { "services" => ["isns-server"], "display_details" => true }
+          { "services" => ["service:isns"], "display_details" => true }
         ),
         "iscsi_nodes_display" => {
           "widget"        => :custom,
