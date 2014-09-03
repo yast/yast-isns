@@ -321,44 +321,12 @@ module Yast
       temp
     end
 
-
-    def readDDS(address)
-      values = []
-      ddid = ""
-
-      Builtins.y2milestone("readDDS %1", address)
-      command = Builtins.sformat("isnsadm -a %1 -t -q dds", address)
-      result = Convert.convert(
-        SCR.Execute(path(".target.bash_output"), command, {}),
-        :from => "any",
-        :to   => "map <string, any>"
-      )
-      Builtins.foreach(
-        Builtins.splitstring(Ops.get_string(result, "stdout", ""), "\n")
-      ) do |row|
-        pos = Builtins.findfirstof(row, ":")
-        key = ""
-        val = ""
-        if pos != nil && Ops.greater_than(pos, 0)
-          key = Builtins.substring(row, 0, pos)
-          val = Builtins.substring(row, Ops.add(pos, 2))
-        end
-        if key == "DDS ID  "
-          values = Builtins.add(values, val)
-        elsif key == "DDS Sym Name "
-          values = Builtins.add(values, val)
-        end
-      end
-
-      deep_copy(values)
-    end
-
     def readDDMembers(address, id)
       values = []
       temp = {}
       ddid = ""
 
-      Builtins.y2milestone("readDDSMembers %1 %2", address, id)
+      Builtins.y2milestone("readDDMembers %1 %2", address, id)
       command = Builtins.sformat("isnsadm -a %1 -t -q dd -n %2", address, id)
       result = Convert.convert(
         SCR.Execute(path(".target.bash_output"), command, {}),
@@ -380,38 +348,6 @@ module Yast
         if key == "   DD iSCSI Member Index  "
           Ops.set(temp, "TYPE", readISCSI_type(address, val))
           values = Builtins.add(values, temp)
-        end
-      end
-
-      deep_copy(values)
-    end
-
-    def readDDSMembers(address, id)
-      values = []
-      ddid = ""
-
-      Builtins.y2milestone("readDDSMembers %1 %2", address, id)
-      command = Builtins.sformat("isnsadm -a %1 -t -q dds -n %2", address, id)
-      result = Convert.convert(
-        SCR.Execute(path(".target.bash_output"), command, {}),
-        :from => "any",
-        :to   => "map <string, any>"
-      )
-      Builtins.foreach(
-        Builtins.splitstring(Ops.get_string(result, "stdout", ""), "\n")
-      ) do |row|
-        pos = Builtins.findfirstof(row, ":")
-        key = ""
-        val = ""
-        Builtins.y2milestone("results: %1", row)
-        if pos != nil && Ops.greater_than(pos, 0)
-          key = Builtins.substring(row, 0, pos)
-          val = Builtins.substring(row, Ops.add(pos, 2))
-        end
-        if key == "   DD ID "
-          values = Builtins.add(values, val)
-        elsif key == "   DD Sym Name "
-          values = Builtins.add(values, val)
         end
       end
 
@@ -449,6 +385,7 @@ module Yast
       deep_copy(values)
     end
 
+    # addISCSI is unused
     def addISCSI(address, name, entityid)
       Builtins.y2milestone("addISCSI")
       command = Builtins.sformat(
@@ -461,17 +398,6 @@ module Yast
       true
     end
 
-    def addDDS(address, name)
-      Builtins.y2milestone("addDDS")
-      command = Builtins.sformat(
-        "isnsadm -a %1 -t -r dds -n '%2'",
-        address,
-        name
-      )
-      SCR.Execute(path(".target.bash_output"), command, {})
-      true
-    end
-
     def addDDMember(address, dd_id, iqn)
       Builtins.y2milestone("addDDMember")
       command = Builtins.sformat(
@@ -479,18 +405,6 @@ module Yast
         address,
         dd_id,
         iqn
-      )
-      SCR.Execute(path(".target.bash_output"), command, {})
-      true
-    end
-
-    def addDDSMember(address, dds_id, dd_id)
-      Builtins.y2milestone("addDDSMember")
-      command = Builtins.sformat(
-        "isnsadm -a %1 -t -r ddsmember -n %2 -m %3",
-        address,
-        dds_id,
-        dd_id
       )
       SCR.Execute(path(".target.bash_output"), command, {})
       true
@@ -519,16 +433,8 @@ module Yast
       true
     end
 
-    def deleteDDS(address, id)
-      Builtins.y2milestone("deleteDDS")
-      command = Builtins.sformat("isnsadm -a %1 -t -d dds -n '%2'", address, id)
-      SCR.Execute(path(".target.bash_output"), command, {})
-
-      true
-    end
-
     def deleteDDMember(address, dd_id, iqn)
-      Builtins.y2milestone("deleteDDSMember:%1", iqn)
+      Builtins.y2milestone("deleteDDMember:%1", iqn)
       command = Builtins.sformat(
         "isnsadm -a %1 -t -d ddmember -n %2 -m %3",
         address,
@@ -540,21 +446,8 @@ module Yast
       true
     end
 
-    def deleteDDSMember(address, dds_id, dd_id)
-      Builtins.y2milestone("deleteDDSMember")
-      command = Builtins.sformat(
-        "isnsadm -a %1 -t -d ddsmember -n %2 -m %3",
-        address,
-        dds_id,
-        dd_id
-      )
-      SCR.Execute(path(".target.bash_output"), command, {})
-
-      true
-    end
-
     def deleteDD(address, id)
-      Builtins.y2milestone("deleteDDS")
+      Builtins.y2milestone("deleteDD")
       command = Builtins.sformat("isnsadm -a %1 -t -d dd -n '%2'", address, id)
       SCR.Execute(path(".target.bash_output"), command, {})
 
@@ -746,19 +639,13 @@ module Yast
     publish :function => :testISNSAccess, :type => "string (string)"
     publish :function => :readISCSI, :type => "list <map <string, any>> (string)"
     publish :function => :readISCSI_type, :type => "string (string, string)"
-    publish :function => :readDDS, :type => "list <string> (string)"
     publish :function => :readDDMembers, :type => "list <map <string, any>> (string, string)"
-    publish :function => :readDDSMembers, :type => "list <string> (string, string)"
     publish :function => :readDD, :type => "list <string> (string)"
     publish :function => :addISCSI, :type => "boolean (string, string, string)"
-    publish :function => :addDDS, :type => "boolean (string, string)"
     publish :function => :addDDMember, :type => "boolean (string, string, string)"
-    publish :function => :addDDSMember, :type => "boolean (string, string, string)"
     publish :function => :addDD, :type => "boolean (string, string)"
     publish :function => :deleteISCSI, :type => "boolean (string, string)"
-    publish :function => :deleteDDS, :type => "boolean (string, string)"
     publish :function => :deleteDDMember, :type => "boolean (string, string, string)"
-    publish :function => :deleteDDSMember, :type => "boolean (string, string, string)"
     publish :function => :deleteDD, :type => "boolean (string, string)"
     publish :function => :Read, :type => "boolean ()"
     publish :function => :Write, :type => "boolean ()"

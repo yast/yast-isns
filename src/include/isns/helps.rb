@@ -36,9 +36,6 @@ module Yast
         "summary"             => _(
           "<p><b><big>iSNS Configuration</big></b><br>\nConfigure an iSNS server.<br></p>\n"
         ),
-        "ipaddress"           => _(
-          "<b><big>iSNS Server location</big></b><br>The DNS name or the IP address of the iSNS service can be entered as the iSNS address.\n"
-        ),
         "iscsi_display"       => _(
           "<p>The list of all available iSCSI nodes registered with the iSNS service are displayed.</p> <p>Nodes are registered by iSCSI initiators and iSCSI targets.</p> <p> It is only possible to <b>delete</b> them.  Deleting a node removes it from the iSNS database.</p>"
         ),

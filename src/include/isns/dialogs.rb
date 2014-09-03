@@ -38,8 +38,6 @@ module Yast
               HStretch(),
               HSpacing(1),
               VBox(
-                "ipaddress",
-                VSpacing(2),
                 "auto_start_up",
                 VSpacing(2),
                 "firewall",
@@ -50,7 +48,7 @@ module Yast
             ),
             VStretch()
           ),
-          "widget_names" => ["ipaddress", "auto_start_up", "firewall"]
+          "widget_names" => ["auto_start_up", "firewall"]
         },
         # second tab - iSCSI Nodes
         "members"             => {
@@ -71,16 +69,6 @@ module Yast
             HBox(HStretch(), VBox("dd_display_members"), HStretch())
           ),
           "widget_names" => ["dd_display", "dd_display_members"]
-        },
-        # fourth tab - discovery domain sets
-        "discoverydomainsets" => {
-          "header"       => _("Discovery Domains Sets"),
-          "contents"     => VBox(
-            HBox(HStretch(), VBox("dds_display"), HStretch()),
-            VStretch(),
-            HBox(HStretch(), VBox("dds_display_members"), HStretch())
-          ),
-          "widget_names" => ["dds_display", "dds_display_members"]
         }
       }
 
@@ -105,24 +93,6 @@ module Yast
             )
           }
         ),
-        "ipaddress"           => {
-          "widget"        => :custom,
-          "custom_widget" => VBox(
-            HBox(
-              InputField(
-                Id(:isnsaddress),
-                Opt(:hstretch),
-                _("Address of iSNS Server")
-              )
-            )
-          ),
-          "init"          => fun_ref(method(:initAddress), "void (string)"),
-          "handle"        => fun_ref(
-            method(:handleAddress),
-            "symbol (string, map)"
-          ),
-          "help"          => Ops.get_string(@HELPS, "ipaddress", "")
-        },
         "firewall"            => CWMFirewallInterfaces.CreateOpenFirewallWidget(
           { "services" => ["service:isns"], "display_details" => true }
         ),
@@ -204,66 +174,6 @@ module Yast
             "symbol (string, map)"
           ),
           "help"          => Ops.get_string(@HELPS, "dd_display_members", "")
-        },
-        "dds_display"         => {
-          "widget"        => :custom,
-          "custom_widget" => VBox(
-            Heading(_("Discovery Domains Sets")),
-            HBox(
-              VSpacing(5),
-              Table(
-                Id(:dds_table),
-                Opt(:notify, :immediate),
-                Header(_("Discovery Domain Set Name")),
-                []
-              )
-            ),
-            Left(
-              HBox(
-                PushButton(Id(:add), _("Create Discovery Domain Set")),
-                PushButton(Id(:delete), _("Delete")),
-                HSpacing(25)
-              )
-            )
-          ),
-          "init"          => fun_ref(
-            method(:initDiscoveryDomainSet),
-            "void (string)"
-          ),
-          "handle"        => fun_ref(
-            method(:handleDiscoveryDomainSet),
-            "symbol (string, map)"
-          ),
-          "help"          => Ops.get_string(@HELPS, "dds_display", "")
-        },
-        "dds_display_members" => {
-          "widget"        => :custom,
-          "custom_widget" => VBox(
-            Heading(_("Discovery Domain Set Members")),
-            HBox(
-              VSpacing(10),
-              Table(
-                Id(:dds_members_table),
-                Header(_("Discovery Domain Name")),
-                []
-              )
-            ),
-            Left(
-              HBox(
-                PushButton(Id(:adddd), _("Add Discovery Domain")),
-                PushButton(Id(:remove), _("Remove"))
-              )
-            )
-          ),
-          "init"          => fun_ref(
-            method(:initDiscoveryDomainSetMembers),
-            "void (string)"
-          ),
-          "handle"        => fun_ref(
-            method(:handleDiscoveryDomainSetMembers),
-            "symbol (string, map)"
-          ),
-          "help"          => Ops.get_string(@HELPS, "dds_display_members", "")
         }
       }
     end
@@ -280,8 +190,7 @@ module Yast
             "tab_order"    => [
               "service",
               "members",
-              "discoverydomains",
-              "discoverydomainsets"
+              "discoverydomains"
             ],
             "tabs"         => @tabs_descr,
             "widget_descr" => @widgets,
