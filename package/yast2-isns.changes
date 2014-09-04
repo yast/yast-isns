@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Thu Sep  4 13:39:48 UTC 2014 - cwh@suse.com
+
+- adapted to open-isns (bnc#887477 + fate#316901) by
+  - removing UI parts of things not supported by open-isns
+  - changing calls of 'isnsadm' to new syntax
+- 3.1.4 
+
+-------------------------------------------------------------------
 Thu Jun  5 11:23:03 CEST 2014 - gs@suse.de
 
 - correct name for firewall service, adjust 'isnsd' service start
