@@ -16,13 +16,10 @@ module Yast
       Yast.import "IsnsServer"
       Yast.import "String"
       Yast.import "Report"
-
-      @address = ""
     end
 
     #	**************** global funcions and variables *****
     def DiscoveryDomainDetailDialog(values_before)
-      values_before = deep_copy(values_before)
       ret_map = {}
       dd_dialog = VBox(
         Heading(_("Create New Discovery Domain")),
@@ -31,128 +28,33 @@ module Yast
           3,
           InputField(Id(:ddentry), Opt(:hstretch), _("Discovery Domain Name"))
         ),
-        VSpacing(1),
-        HBox(
-          HSpacing(3),
-          VBox(
-            Label(
-              _(
-                "Select discovery domain set to which discovery domain will be added."
-              )
-            ),
-            SelectionBox(Id(:ddsentries), _("Discovery Domain Name Set"))
-          ),
-          HSpacing(3)
-        ),
-        VSpacing(1),
         ButtonBox(
-          PushButton(Id(:ok), Label.OKButton),
+          PushButton(Id(:ok), Opt(:default), Label.OKButton),
           PushButton(Id(:cancel), Label.CancelButton)
         ),
         VSpacing(1)
       )
       UI.OpenDialog(dd_dialog)
-
-      inc_items = []
-      count = 0
-      index = ""
-      first = ""
-      Builtins.foreach(IsnsServer.readDDS(@address)) do |ddsentry|
-        if count == 0
-          index = ddsentry
-          count = 1
-        else
-          inc_items = Builtins.add(inc_items, Item(Id(index), ddsentry))
-          count = 0
-          first = ddsentry if first == ""
-        end
-      end
-
-      UI.ChangeWidget(Id(:ddsentries), :Items, inc_items)
-      UI.ChangeWidget(Id(:ddsentries), :CurrentItem, first)
+      UI.SetFocus(:ddentry)
 
       ret = :nil
       while ret != :ok && ret != :cancel
         enable = false
-        ret = Convert.to_symbol(UI.UserInput)
+        ret = UI.UserInput
       end
 
       if ret == :cancel
         ret_map = {}
       else
-        dd_name = Convert.to_string(UI.QueryWidget(:ddentry, :Value))
-
-        dds_id = Convert.to_string(
-          UI.QueryWidget(Id(:ddsentries), :CurrentItem)
-        )
-        Builtins.y2milestone("creating dd add to dds: %1", dds_id)
-        IsnsServer.addDD(@address, dd_name)
-
-        count2 = 0
-        dd_index = ""
-        Builtins.foreach(IsnsServer.readDD(@address)) do |dd|
-          if count2 == 0
-            dd_index = dd
-            count2 = 1
-          else
-            IsnsServer.addDDSMember(@address, dds_id, dd_index) if dd == dd_name
-            count2 = 0
-          end
-        end
-
+        dd_name = UI.QueryWidget(:ddentry, :Value)
+        IsnsServer.addDD(dd_name)
         ret_map = { "VALUE" => dd_name }
       end
       UI.CloseDialog
-      deep_copy(ret_map)
+      ret_map
     end
 
-    def DiscoveryDomainSetDetailDialog(values_before)
-      values_before = deep_copy(values_before)
-      ret_map = {}
-      dds_dialog = HBox(
-        HSpacing(5),
-        VBox(
-          VSpacing(1),
-          Left(
-            HWeight(
-              3,
-              InputField(
-                Id(:ddsentry),
-                Opt(:hstretch),
-                _("Discovery Domain Set Name")
-              )
-            )
-          ),
-          Left(
-            ButtonBox(
-              PushButton(Id(:ok), Label.OKButton),
-              PushButton(Id(:cancel), Label.CancelButton)
-            )
-          ),
-          VSpacing(1)
-        ),
-        HSpacing(5)
-      )
-      UI.OpenDialog(dds_dialog)
-
-      ret = :nil
-      while ret != :ok && ret != :cancel
-        enable = false
-        ret = Convert.to_symbol(UI.UserInput)
-      end
-
-      if ret == :cancel
-        ret_map = {}
-      else
-        value = Convert.to_string(UI.QueryWidget(:ddsentry, :Value))
-        ret_map = { "VALUE" => value }
-      end
-      UI.CloseDialog
-      deep_copy(ret_map)
-    end
-
-    def CreateNode(values_before)
-      values_before = deep_copy(values_before)
+    def CreateNode()
       ret_map = {}
       node_dialog = HBox(
         HSpacing(5),
@@ -230,7 +132,7 @@ module Yast
             1,
             ""
           )
-          IsnsServer.addDDMember(@address, dd_id, iqn)
+          IsnsServer.addDDMember(dd_id, iqn)
           initDiscoveryDomainPotentialISCSI(dd_id)
         end
       end
@@ -239,82 +141,28 @@ module Yast
       deep_copy(ret_map)
     end
 
-    def DisplayAllDiscoveryDomainsDialog(dds_name, dds_id)
-      ret_map = {}
-      dds_dialog = VBox(
-        Heading(_("Add Discovery Domain to Set")),
-        Label(dds_name),
-        HSpacing(50),
-        Heading(_("Available Discovery Domains")),
-        HBox(VSpacing(10), Table(Id(:dd_table), Header(_("Name")), [])),
-        Left(
-          HBox(
-            PushButton(Id(:add), _("Add Discovery Domain")),
-            PushButton(Id(:exit), _("Done"))
-          )
-        )
-      )
-      UI.OpenDialog(dds_dialog)
-
-      initDiscoveryDomainPotential(dds_id)
-
-      ret = :nil
-      while ret != :exit
-        enable = false
-        ret = Convert.to_symbol(UI.UserInput)
-        if ret == :add
-          Builtins.y2milestone("Add a dds member")
-          dd_id = Convert.to_string(UI.QueryWidget(Id(:dd_table), :CurrentItem))
-          IsnsServer.addDDSMember(@address, dds_id, dd_id)
-          initDiscoveryDomainPotential(dds_id)
-        end
-      end
-
-      UI.CloseDialog
-      deep_copy(ret_map)
-    end
-
-
-    def initAddress(key)
-      @address = Ops.get_string(
-        Convert.convert(
-          SCR.Execute(
-            path(".target.bash_output"),
-            "cat /etc/isns.conf|cut -d'=' -f2|tr -d '\n'"
-          ),
-          :from => "any",
-          :to   => "map <string, any>"
-        ),
-        "stdout",
-        ""
-      )
-      UI.ChangeWidget(:isnsaddress, :Value, @address)
-
-      nil
-    end
     def initISCSI(key)
-      count = 0
       type = _("Target or Initiator")
       inc_items = []
 
       checkISNS
 
-      Builtins.foreach(IsnsServer.readISCSI(@address)) do |key2|
-        inc_items = Builtins.add(
-          inc_items,
-          Item(
-            Id(count),
-            Ops.get_string(key2, "NODE", ""),
-            Ops.get_string(key2, "TYPE", "")
-          )
-        )
-        count = Ops.add(count, 1)
+      list = IsnsServer.readISCSI
+
+      list.each_with_index do |key, index|
+        inc_items.push(Item(
+                            Id(index),
+                            key["NODE"],
+                            key["TYPE"]
+                            )
+                       )
       end
 
       UI.ChangeWidget(Id(:members_table), :Items, inc_items)
 
       nil
     end
+
     def initDiscoveryDomainPotentialISCSI(key)
       count = 0
       type = _("Target or Initiator")
@@ -323,9 +171,9 @@ module Yast
       ddmembers = []
       found = "FALSE"
 
-      ddmembers = IsnsServer.readDDMembers(@address, key)
+      ddmembers = IsnsServer.readDDMembers(key)
 
-      Builtins.foreach(IsnsServer.readISCSI(@address)) do |iscsinode2|
+      Builtins.foreach(IsnsServer.readISCSI) do |iscsinode2|
         found = "FALSE"
         Builtins.foreach(ddmembers) do |ddmember|
           if Ops.get_string(ddmember, "NODE", "") ==
@@ -351,167 +199,48 @@ module Yast
       nil
     end
     def initDDISCSIMembers(key)
-      count = 0
-      index = ""
-      ddid = ""
       inc_items = []
 
       Builtins.y2milestone("initDDISCSIMembers key is:%1", key)
       if key == "dd_display_members"
-        key = Convert.to_string(UI.QueryWidget(Id(:dd_table), :CurrentItem))
+        key = UI.QueryWidget(Id(:dd_table), :CurrentItem)
       end
 
       ddid = key
-      Builtins.foreach(IsnsServer.readDDMembers(@address, ddid)) do |result|
+      IsnsServer.readDDMembers(ddid).each_with_index do |result, index|
         Builtins.y2milestone("iscsiMembers: %1", key)
-        inc_items = Builtins.add(
-          inc_items,
-          Item(
-            Id(count),
-            Ops.get_string(result, "NODE", ""),
-            Ops.get_string(result, "TYPE", "")
-          )
-        )
-        count = Ops.add(count, 1)
+        inc_items << Item(Id(index), result["NODE"], result["TYPE"])
       end
 
       UI.ChangeWidget(Id(:dd_members_table), :Items, inc_items)
 
       nil
     end
-    def initDiscoveryDomain(key)
-      count = 0
-      index = ""
-      inc_items = []
 
+    def initDiscoveryDomain(key = nil)
       checkISNS
 
-      Builtins.foreach(IsnsServer.readDD(@address)) do |dd|
-        if count == 0
-          index = dd
-          count = 1
-        else
-          inc_items = Builtins.add(inc_items, Item(Id(index), dd))
-          count = 0
-        end
+      inc_items = []
+
+      IsnsServer.readDD.each do |dd|
+        dd["DD name"] = "default" if dd["DD ID"] == "0"
+        inc_items << Item(Id(dd["DD ID"]), dd["DD name"])
       end
 
       UI.ChangeWidget(Id(:dd_table), :Items, inc_items)
 
       nil
     end
-    def initDiscoveryDomainPotential(key)
-      count = 0
-      index = ""
-      inc_items = []
-      ddsmembers = []
-      found = "FALSE"
-
-      ddsmembers = IsnsServer.readDDSMembers(@address, key)
-
-      Builtins.foreach(IsnsServer.readDD(@address)) do |dd|
-        if count == 0
-          index = dd
-          count = 1
-        else
-          found = "FALSE"
-          Builtins.foreach(ddsmembers) do |ddsmember|
-            found = "TRUE" if ddsmember == dd
-          end
-
-          if found == "FALSE"
-            inc_items = Builtins.add(inc_items, Item(Id(index), dd))
-          end
-          count = 0
-        end
-      end
-
-      UI.ChangeWidget(Id(:dd_table), :Items, inc_items)
-
-      nil
-    end
-
-    def initDiscoveryDomainSet(key)
-      count = 0
-      index = ""
-
-      inc_items = []
-
-      Builtins.y2milestone("isnsaddress is %1", @address)
-
-      checkISNS
-
-      Builtins.foreach(IsnsServer.readDDS(@address)) do |key2|
-        if count == 0
-          index = key2
-          count = 1
-        else
-          inc_items = Builtins.add(inc_items, Item(Id(index), key2))
-          count = 0
-        end
-      end
-
-      UI.ChangeWidget(Id(:dds_table), :Items, inc_items)
-
-      nil
-    end
-    def initDiscoveryDomainSetMembers(key)
-      count = 0
-      index = ""
-      inc_items = []
-      dds_id = ""
-
-      if key == "dds_display_members"
-        key = Convert.to_string(UI.QueryWidget(Id(:dds_table), :CurrentItem))
-      end
-
-      dds_id = key
-
-      Builtins.foreach(IsnsServer.readDDSMembers(@address, dds_id)) do |key2|
-        Builtins.y2milestone("results received: %1", key2)
-        if count == 0
-          index = key2
-          count = 1
-        else
-          inc_items = Builtins.add(inc_items, Item(Id(index), key2))
-          count = 0
-        end
-      end
-
-      UI.ChangeWidget(Id(:dds_members_table), :Items, inc_items)
-
-      nil
-    end
-
-
-    def handleAddress(key, event)
-      event = deep_copy(event)
-      @address = Convert.to_string(UI.QueryWidget(:isnsaddress, :Value))
-      SCR.Execute(
-        path(".target.bash_output"),
-        Builtins.sformat("echo \"isns_address=%1\">/etc/isns.conf", @address)
-      )
-      Builtins.y2milestone("isnsaddress is %1", @address)
-      nil
-    end
-
 
     def handleISCSI(key, event)
-      event = deep_copy(event)
-      if Ops.get_string(event, "EventReason", "") == "Activated"
-        case Ops.get_symbol(event, "WidgetID")
+      if event["EventReason"] == "Activated"
+        case event["WidgetID"]
           when :delete
             @del = UI.QueryWidget(Id(:members_table), :CurrentItem)
             if @del != nil
               if Popup.ContinueCancel(_("Really delete the selected item?"))
-                discoverydomainsetname = Ops.get_string(
-                  Convert.to_term(
-                    UI.QueryWidget(Id(:members_table), term(:Item, @del))
-                  ),
-                  1,
-                  ""
-                )
-                IsnsServer.deleteISCSI(@address, discoverydomainsetname)
+                iqn = UI.QueryWidget(Id(:members_table), term(:Item, @del))[1]
+                IsnsServer.deleteISCSI(iqn)
                 initISCSI("")
               else
                 Builtins.y2milestone("Delete canceled")
@@ -539,63 +268,15 @@ module Yast
             )
             if @del != nil
               if Popup.ContinueCancel(_("Really delete this domain?"))
-                IsnsServer.deleteDD(@address, @del)
-                initDiscoveryDomain("")
+                IsnsServer.deleteDD(@del)
+                initDiscoveryDomain
               else
                 Builtins.y2milestone("Delete canceled")
               end
             end
           when :add
             @add_map = DiscoveryDomainDetailDialog({ "VALUE" => "" })
-            if @add_map != {}
-              #    IsnsServer::addDD(address, add_map["VALUE"]:"");
-              initDiscoveryDomain("")
-            end
-        end
-      end
-
-      nil
-    end
-
-    def handleDiscoveryDomainSet(key, event)
-      event = deep_copy(event)
-      mycurrent = Convert.to_string(
-        UI.QueryWidget(Id(:dds_table), :CurrentItem)
-      )
-      Builtins.y2milestone(
-        "handleDiscoveryDomainSet action called: %1 -- %2 -- %3",
-        key,
-        event,
-        mycurrent
-      )
-
-      if Ops.get_string(event, "EventReason", "") == "SelectionChanged"
-        Builtins.y2milestone("selectionChangedEvent")
-        dds_id = Convert.to_string(UI.QueryWidget(Id(:dds_table), :CurrentItem))
-        Builtins.y2milestone("selectionChangedEvent - dds-id:%1", dds_id)
-        initDiscoveryDomainSetMembers(dds_id)
-      end
-
-      if Ops.get_string(event, "EventReason", "") == "Activated"
-        case Ops.get_symbol(event, "WidgetID")
-          when :delete
-            @del = Convert.to_string(
-              UI.QueryWidget(Id(:dds_table), :CurrentItem)
-            )
-            if @del != nil
-              if Popup.ContinueCancel(_("Really delete the selected item?"))
-                IsnsServer.deleteDDS(@address, @del)
-                initDiscoveryDomainSet("")
-              else
-                Builtins.y2milestone("Delete canceled")
-              end
-            end
-          when :add
-            @add_map = DiscoveryDomainSetDetailDialog({ "VALUE" => "" })
-            if @add_map != {}
-              IsnsServer.addDDS(@address, Ops.get_string(@add_map, "VALUE", ""))
-              initDiscoveryDomainSet("")
-            end
+            initDiscoveryDomain unless @add_map.empty?
         end
       end
 
@@ -624,7 +305,7 @@ module Yast
             dd_id = Convert.to_string(
               UI.QueryWidget(Id(:dd_table), :CurrentItem)
             )
-            IsnsServer.deleteDDMember(@address, dd_id, dd_name)
+            IsnsServer.deleteDDMember(dd_id, dd_name)
             initDDISCSIMembers(dd_id)
           when :addiscsinode
             dd_id = Convert.to_string(
@@ -647,12 +328,11 @@ module Yast
               ""
             )
 
-            add_map = CreateNode({ "VALUE" => "" })
+            add_map = CreateNode()
             if add_map != {}
               IsnsServer.addDDMember(
-                @address,
                 dd_id,
-                Ops.get_string(add_map, "VALUE", "")
+                add_map["VALUE"]
               )
             end
 
@@ -663,52 +343,12 @@ module Yast
       nil
     end
 
-    def handleDiscoveryDomainSetMembers(key, event)
-      event = deep_copy(event)
-      if Ops.get_string(event, "EventReason", "") == "Activated"
-        case Ops.get_symbol(event, "WidgetID")
-          when :delete
-            # domain Set deleted, but we get this event so update the members table
-            dds_id = Convert.to_string(
-              UI.QueryWidget(Id(:dds_table), :CurrentItem)
-            )
-            initDiscoveryDomainSetMembers(dds_id)
-          when :remove
-            Builtins.y2milestone("Unassign a dds member")
-            dds_id = Convert.to_string(
-              UI.QueryWidget(Id(:dds_table), :CurrentItem)
-            )
-            dd_id = Convert.to_string(
-              UI.QueryWidget(Id(:dds_members_table), :CurrentItem)
-            )
-            IsnsServer.deleteDDSMember(@address, dds_id, dd_id)
-            initDiscoveryDomainSetMembers(dds_id)
-          when :adddd
-            Builtins.y2milestone("Add a dds member")
-            dds_id = Convert.to_string(
-              UI.QueryWidget(Id(:dds_table), :CurrentItem)
-            )
-            dds_name = Ops.get_string(
-              Convert.to_term(
-                UI.QueryWidget(Id(:dds_table), term(:Item, dds_id))
-              ),
-              1,
-              ""
-            )
-            add_map1 = DisplayAllDiscoveryDomainsDialog(dds_name, dds_id)
-            initDiscoveryDomainSetMembers(dds_id)
-        end
-      end
-
-      nil
-    end
     def checkISNS
-      isns_status = IsnsServer.testISNSAccess(@address)
-      if isns_status != "OK"
+      if !IsnsServer.testISNSAccess
         #       boolean display = true;
         #       Report::DisplayErrors(display,10);
         Report.Error(
-          _("Unable to connect to iSNS server. Check iSNS server address.")
+          _("Unable to connect to iSNS server. Check if iSNS server is running.")
         )
         return 1
       end

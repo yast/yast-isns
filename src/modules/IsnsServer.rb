@@ -13,10 +13,10 @@ require "yast"
 
 module Yast
   class IsnsServerClass < Module
+
     def main
       textdomain "isns"
 
-      Yast.import "Progress"
       Yast.import "Report"
       Yast.import "Summary"
       Yast.import "Message"
@@ -124,7 +124,7 @@ module Yast
     # Data was modified?
     # @return true if modified
     def Modified
-      Builtins.y2debug("modified=%1", @modified)
+      y2debug("modified=%1", @modified)
       @modified
     end
 
@@ -136,37 +136,14 @@ module Yast
         :to   => "map <string, any>"
       )
       # IsnsServerFunctions::parseConfig( read_values );
-      Builtins.y2milestone("isns readConfig")
+      y2milestone("isns readConfig")
       true
     end
-
-    # write configuration file /etc/ietd.conf
-    def writeConfig
-      # prepare map, because perl->ycp lost information about data types (integers in this case)
-      # map <string, any> config_file = IsnsServerFunctions::writeConfig();
-      # config_file["type"]=tointeger(config_file["type"]:"1");
-      # config_file["file"]=tointeger(config_file["file"]:"1");
-      # list <map<string, any> > value = [];
-      # foreach(map<string, any> row, config_file["value"]:[], {
-      #  row["type"]=tointeger(row["type"]:"1");
-      #  row["file"]=tointeger(row["file"]:"1");
-      #  value = add(value, row);
-      # });
-      #
-      # config_file["value"] = value;
-      # y2milestone("config_file to write %1", config_file);
-      # // write it
-      # SCR::Write(.etc.ietd.all, config_file);
-      # SCR::Write(.etc.ietd, nil);
-      true
-    end
-
-
 
     # test if required package ("open-isns") is installed
     def installed_packages
       ret = false
-      Builtins.y2milestone("Check if open-isns is installed")
+      y2milestone("Check if open-isns is installed")
       if !Package.InstallMsg(
           "open-isns",
           _(
@@ -205,7 +182,7 @@ module Yast
         @statusOnStart = true
         @serviceStatus = true
       end
-      Builtins.y2milestone("Service status = %1", @statusOnStart)
+      y2milestone("Service status = %1", @statusOnStart)
       isnsdSocketStart if !@statusOnStart
       ret
     end
@@ -216,11 +193,11 @@ module Yast
       start = @statusOnStart if !@serviceStatus
 
       if !start
-        Builtins.y2milestone("Stop isnsd service and socket")
+        y2milestone("Stop isnsd service and socket")
         isnsdSocketStop
         Service.Stop("isnsd")
       else
-        Builtins.y2milestone("Start isnsd socket")
+        y2milestone("Start isnsd socket")
         Service.Stop("isnsd") if Service.Status("isnsd") == 0
         @serviceStatus = true
         isnsdSocketStart
@@ -228,339 +205,70 @@ module Yast
       true
     end
 
-    def testISNSAccess(address)
-      value = "OK"
-      temp = {}
+    def testISNSAccess()
+      # We cannot proceed if we are not control node
+      isnsadm_control
+    end
 
-      command = Builtins.sformat("isnsadm -a %1 -t -q iscsi", address)
-      result = Convert.convert(
-        SCR.Execute(path(".target.bash_output"), command, {}),
-        :from => "any",
-        :to   => "map <string, any>"
-      )
-      Builtins.foreach(
-        Builtins.splitstring(Ops.get_string(result, "stdout", ""), "\n")
-      ) do |row|
-        if row == "TCP error on connection"
-          Builtins.y2milestone("TCP error: %1 ", row)
-          value = "ERROR"
-        end
-        if row == "Error Sending TCP request."
-          Builtins.y2milestone("Failed to resolve host error: %1 ", row)
-          value = "ERROR"
-        end
+    def readISCSI
+      values = []
+
+      isnsadm_list("nodes").each do |obj|
+        temp = {}
+        temp["NODE"] = obj["iSCSI name"]
+        temp["TYPE"] = obj["iSCSI node type"]
+        values.push(temp)
       end
 
-      value
+      values
     end
-    def readISCSI(address)
+
+    def readDDMembers(id)
       values = []
       temp = {}
 
-      command = Builtins.sformat("isnsadm -a %1 -t -q iscsi", address)
-      result = Convert.convert(
-        SCR.Execute(path(".target.bash_output"), command, {}),
-        :from => "any",
-        :to   => "map <string, any>"
-      )
-      Builtins.foreach(
-        Builtins.splitstring(Ops.get_string(result, "stdout", ""), "\n")
-      ) do |row|
-        pos = Builtins.findfirstof(row, ":")
-        key = ""
-        val = ""
-        if pos != nil && Ops.greater_than(pos, 0)
-          key = Builtins.substring(row, 0, pos)
-        end
-        if key == "iSCSI ID  "
-          val = Builtins.substring(row, Ops.add(pos, 2))
-          Ops.set(temp, "NODE", val)
-        end
-        if key == "Type"
-          val = Builtins.substring(row, Ops.add(pos, 6))
-          Ops.set(temp, "TYPE", val)
-          values = Builtins.add(values, temp)
-        end
+      y2milestone("readDDMembers of DD #{id}")
+
+      ddmembers = isnsadm_query("dd-id=#{id}")["DD member iSCSI name"]
+      return [] unless ddmembers
+
+      ddmembers.each do |iqn|
+        type = isnsadm_query("iscsi-name=#{iqn}")["iSCSI node type"]
+        values << {"NODE" => iqn, "TYPE" => type }
       end
 
-      deep_copy(values)
+      values
     end
 
-    def readISCSI_type(address, index)
-      temp = ""
-
-      Builtins.y2milestone("iSCSIRead_type index:%1", index)
-
-      command = Builtins.sformat(
-        "isnsadm -a %1 -t -q iscsi -n %2",
-        address,
-        index
-      )
-      result = Convert.convert(
-        SCR.Execute(path(".target.bash_output"), command, {}),
-        :from => "any",
-        :to   => "map <string, any>"
-      )
-      Builtins.foreach(
-        Builtins.splitstring(Ops.get_string(result, "stdout", ""), "\n")
-      ) do |row|
-        pos = Builtins.findfirstof(row, ":")
-        key = ""
-        val = ""
-        if pos != nil && Ops.greater_than(pos, 0)
-          key = Builtins.substring(row, 0, pos)
-          val = Builtins.substring(row, Ops.add(pos, 6))
-        end
-        Builtins.y2milestone("iSCSIRead_type %1", key)
-        if key == "Type"
-          Builtins.y2milestone("iSCSIRead_type return value is %1", val)
-          temp = val
-        end
-      end
-
-      temp
+    def readDD
+      y2milestone("readDD")
+      isnsadm_list("dds")
     end
 
-
-    def readDDS(address)
-      values = []
-      ddid = ""
-
-      Builtins.y2milestone("readDDS %1", address)
-      command = Builtins.sformat("isnsadm -a %1 -t -q dds", address)
-      result = Convert.convert(
-        SCR.Execute(path(".target.bash_output"), command, {}),
-        :from => "any",
-        :to   => "map <string, any>"
-      )
-      Builtins.foreach(
-        Builtins.splitstring(Ops.get_string(result, "stdout", ""), "\n")
-      ) do |row|
-        pos = Builtins.findfirstof(row, ":")
-        key = ""
-        val = ""
-        if pos != nil && Ops.greater_than(pos, 0)
-          key = Builtins.substring(row, 0, pos)
-          val = Builtins.substring(row, Ops.add(pos, 2))
-        end
-        if key == "DDS ID  "
-          values = Builtins.add(values, val)
-        elsif key == "DDS Sym Name "
-          values = Builtins.add(values, val)
-        end
-      end
-
-      deep_copy(values)
+    def addDDMember(dd_id, iqn)
+      y2milestone("addDDMember #{iqn} to #{dd_id}")
+      isnsadm("--dd-register dd-id=#{dd_id} dd-member-name=#{iqn}")
     end
 
-    def readDDMembers(address, id)
-      values = []
-      temp = {}
-      ddid = ""
-
-      Builtins.y2milestone("readDDSMembers %1 %2", address, id)
-      command = Builtins.sformat("isnsadm -a %1 -t -q dd -n %2", address, id)
-      result = Convert.convert(
-        SCR.Execute(path(".target.bash_output"), command, {}),
-        :from => "any",
-        :to   => "map <string, any>"
-      )
-      Builtins.foreach(
-        Builtins.splitstring(Ops.get_string(result, "stdout", ""), "\n")
-      ) do |row|
-        pos = Builtins.findfirstof(row, ":")
-        key = ""
-        val = ""
-        Builtins.y2milestone("results: %1", row)
-        if pos != nil && Ops.greater_than(pos, 0)
-          key = Builtins.substring(row, 0, pos)
-          val = Builtins.substring(row, Ops.add(pos, 2))
-        end
-        Ops.set(temp, "NODE", val) if key == "   DD iSCSI Member "
-        if key == "   DD iSCSI Member Index  "
-          Ops.set(temp, "TYPE", readISCSI_type(address, val))
-          values = Builtins.add(values, temp)
-        end
-      end
-
-      deep_copy(values)
+    def addDD(iqn)
+      y2milestone("addDD #{iqn}")
+      isnsadm("--dd-register dd-name=#{iqn}")
     end
 
-    def readDDSMembers(address, id)
-      values = []
-      ddid = ""
-
-      Builtins.y2milestone("readDDSMembers %1 %2", address, id)
-      command = Builtins.sformat("isnsadm -a %1 -t -q dds -n %2", address, id)
-      result = Convert.convert(
-        SCR.Execute(path(".target.bash_output"), command, {}),
-        :from => "any",
-        :to   => "map <string, any>"
-      )
-      Builtins.foreach(
-        Builtins.splitstring(Ops.get_string(result, "stdout", ""), "\n")
-      ) do |row|
-        pos = Builtins.findfirstof(row, ":")
-        key = ""
-        val = ""
-        Builtins.y2milestone("results: %1", row)
-        if pos != nil && Ops.greater_than(pos, 0)
-          key = Builtins.substring(row, 0, pos)
-          val = Builtins.substring(row, Ops.add(pos, 2))
-        end
-        if key == "   DD ID "
-          values = Builtins.add(values, val)
-        elsif key == "   DD Sym Name "
-          values = Builtins.add(values, val)
-        end
-      end
-
-      deep_copy(values)
+    def deleteISCSI(id)
+      y2milestone("deleteISCSI: #{id}")
+      isnsadm("--deregister iscsi-name=#{id}")
     end
 
-    def readDD(address)
-      values = []
-      ddid = ""
-
-      Builtins.y2milestone("readDD")
-      command = Builtins.sformat("isnsadm -a %1 -t -q dd", address)
-      result = Convert.convert(
-        SCR.Execute(path(".target.bash_output"), command, {}),
-        :from => "any",
-        :to   => "map <string, any>"
-      )
-      Builtins.foreach(
-        Builtins.splitstring(Ops.get_string(result, "stdout", ""), "\n")
-      ) do |row|
-        pos = Builtins.findfirstof(row, ":")
-        key = ""
-        val = ""
-        if pos != nil && Ops.greater_than(pos, 0)
-          key = Builtins.substring(row, 0, pos)
-          val = Builtins.substring(row, Ops.add(pos, 2))
-        end
-        if key == "DD ID  "
-          values = Builtins.add(values, val)
-        elsif key == "DD Sym Name "
-          values = Builtins.add(values, val)
-        end
-      end
-
-      deep_copy(values)
+    def deleteDDMember(dd_id, iqn)
+      y2milestone("deleteDDMember #{iqn} from #{dd_id}")
+      isnsadm("--dd-deregister #{dd_id} dd-member-name=#{iqn}")
     end
 
-    def addISCSI(address, name, entityid)
-      Builtins.y2milestone("addISCSI")
-      command = Builtins.sformat(
-        "isnsadm -a %1 -t -r iscsi -n '%2' -m '%3'",
-        address,
-        name,
-        entityid
-      )
-      SCR.Execute(path(".target.bash_output"), command, {})
-      true
+    def deleteDD(id)
+      y2milestone("deleteDD: #{id}")
+      isnsadm("--dd-deregister #{id}")
     end
-
-    def addDDS(address, name)
-      Builtins.y2milestone("addDDS")
-      command = Builtins.sformat(
-        "isnsadm -a %1 -t -r dds -n '%2'",
-        address,
-        name
-      )
-      SCR.Execute(path(".target.bash_output"), command, {})
-      true
-    end
-
-    def addDDMember(address, dd_id, iqn)
-      Builtins.y2milestone("addDDMember")
-      command = Builtins.sformat(
-        "isnsadm -a %1 -t -r ddmember -n %2 -m %3",
-        address,
-        dd_id,
-        iqn
-      )
-      SCR.Execute(path(".target.bash_output"), command, {})
-      true
-    end
-
-    def addDDSMember(address, dds_id, dd_id)
-      Builtins.y2milestone("addDDSMember")
-      command = Builtins.sformat(
-        "isnsadm -a %1 -t -r ddsmember -n %2 -m %3",
-        address,
-        dds_id,
-        dd_id
-      )
-      SCR.Execute(path(".target.bash_output"), command, {})
-      true
-    end
-
-    def addDD(address, name)
-      Builtins.y2milestone("addDD")
-      command = Builtins.sformat(
-        "isnsadm -a %1 -t -r dd -n '%2'",
-        address,
-        name
-      )
-      SCR.Execute(path(".target.bash_output"), command, {})
-      true
-    end
-
-    def deleteISCSI(address, id)
-      Builtins.y2milestone("deleteISCSI")
-      command = Builtins.sformat(
-        "isnsadm -a %1 -t -d iscsi -n '%2'",
-        address,
-        id
-      )
-      SCR.Execute(path(".target.bash_output"), command, {})
-
-      true
-    end
-
-    def deleteDDS(address, id)
-      Builtins.y2milestone("deleteDDS")
-      command = Builtins.sformat("isnsadm -a %1 -t -d dds -n '%2'", address, id)
-      SCR.Execute(path(".target.bash_output"), command, {})
-
-      true
-    end
-
-    def deleteDDMember(address, dd_id, iqn)
-      Builtins.y2milestone("deleteDDSMember:%1", iqn)
-      command = Builtins.sformat(
-        "isnsadm -a %1 -t -d ddmember -n %2 -m %3",
-        address,
-        dd_id,
-        iqn
-      )
-      SCR.Execute(path(".target.bash_output"), command, {})
-
-      true
-    end
-
-    def deleteDDSMember(address, dds_id, dd_id)
-      Builtins.y2milestone("deleteDDSMember")
-      command = Builtins.sformat(
-        "isnsadm -a %1 -t -d ddsmember -n %2 -m %3",
-        address,
-        dds_id,
-        dd_id
-      )
-      SCR.Execute(path(".target.bash_output"), command, {})
-
-      true
-    end
-
-    def deleteDD(address, id)
-      Builtins.y2milestone("deleteDDS")
-      command = Builtins.sformat("isnsadm -a %1 -t -d dd -n '%2'", address, id)
-      SCR.Execute(path(".target.bash_output"), command, {})
-
-      true
-    end
-
 
     # Read all iscsi-server settings
     # @return true on success
@@ -568,77 +276,18 @@ module Yast
       # IsnsServer read dialog caption
       caption = _("Initializing isns daemon configuration")
 
-      # TODO FIXME Set the right number of stages
-      steps = 4
-
-      sl = 500
-      Builtins.sleep(sl)
-
-      # TODO FIXME Names of real stages
-      # We do not set help text here, because it was set outside
-      Progress.New(
-        caption,
-        " ",
-        steps,
-        [
-          # Progress stage 1/3
-          _("Read the database"),
-          # Progress stage 2/3
-          _("Read the previous settings"),
-          # Progress stage 3/3
-          _("Detect the devices")
-        ],
-        [
-          # Progress step 1/3
-          _("Reading the database..."),
-          # Progress step 2/3
-          _("Reading the previous settings..."),
-          # Progress step 3/3
-          _("Detecting the devices..."),
-          # Progress finished
-          _("Finished")
-        ],
-        ""
-      )
-
       # check if user is root
       return false if !Confirm.MustBeRoot
-      Progress.NextStage
+
       # check if required packages ("open-isns") is installed
       return false if !installed_packages
-      Builtins.sleep(sl)
 
-      return false if Abort()
-      Progress.NextStep
       # get status of isns init script
       return false if !getServiceStatus
-      Builtins.sleep(sl)
-
-      return false if Abort()
-      Progress.NextStage
-      # read configuration (/etc/ietd.conf)
-      if !readConfig
-        Report.Error(Message.CannotReadCurrentSettings)
-        return false
-      end
-      Builtins.sleep(sl)
 
       # detect devices
-      Progress.set(false)
       SuSEFirewall.Read
-      Progress.set(true)
 
-      Progress.NextStage
-      # Error message
-      return false if false
-      Builtins.sleep(sl)
-
-      return false if Abort()
-      # Progress finished
-      Progress.NextStage
-      Builtins.sleep(sl)
-
-      return false if Abort()
       @modified = false
       @configured = true
       true
@@ -650,56 +299,7 @@ module Yast
       # IsnsServer write dialog caption
       caption = _("Saving isns Configuration")
 
-      # TODO FIXME And set the right number of stages
-      steps = 2
-
-      sl = 500
-      Builtins.sleep(sl)
-
-      # TODO FIXME Names of real stages
-      # We do not set help text here, because it was set outside
-      Progress.New(
-        caption,
-        " ",
-        steps,
-        [
-          # Progress stage 1/2
-          _("Write the settings"),
-          # Progress stage 2/2
-          _("Run SuSEconfig")
-        ],
-        [
-          # Progress step 1/2
-          _("Writing the settings..."),
-          # Progress step 2/2
-          _("Running SuSEconfig..."),
-          # Progress finished
-          _("Finished")
-        ],
-        ""
-      )
-
-
-      Progress.set(false)
       SuSEFirewall.Write
-      Progress.set(true)
-
-      Progress.NextStage
-      # write configuration (/etc/isns.conf)
-      Report.Error(_("Cannot write settings.")) if !writeConfig
-      Builtins.sleep(sl)
-
-
-      return false if Abort()
-      Progress.NextStage
-      #  ask user whether reload or restart server and do it
-      #    if ( (serviceStatus) || (statusOnStart) )
-      #	if (!reloadServer()) return false;
-      #    sleep(sl);
-
-      return false if Abort()
-      Progress.NextStage
-      Builtins.sleep(sl)
 
       # set isns initscript status
       return false if !setServiceStatus
@@ -719,12 +319,12 @@ module Yast
     # get/set service accessors for CWMService component
     def GetStartService
       status = isnsdSocketEnabled?
-      Builtins.y2milestone("isns service status %1", status)
+      y2milestone("isns service status %1", status)
       status
     end
 
     def SetStartService(status)
-      Builtins.y2milestone("Set service status %1", status)
+      y2milestone("Set service status %1", status)
       @serviceStatus = status
       if status == true
         isnsdSocketEnable
@@ -735,6 +335,87 @@ module Yast
       nil
     end
 
+    private
+
+    def isnsadm(params, ret_result = false)
+      command = "isnsadm --local #{params}"
+      y2debug("Executing #{command}")
+      res = SCR.Execute(path(".target.bash_output"), command, {})
+
+      if ret_result
+        return res
+      else
+        return res["exit"] == 0
+      end
+    end
+
+    def isnsadm_control
+      if !@isctrlnode
+        @isctrlnode = isnsadm("--register control")
+        if !@isctrlnode
+          y2error("Registering as control node failed: #{res["stderr"]}; #{res["stdout"]}")
+        end
+      end
+
+      @isctrlnode
+    end
+
+    def isnsadm_query(query)
+      if !isnsadm_control
+        y2error("We aren't control node. Only default DD shown.")
+      end
+
+      stdout = isnsadm("--query #{query}", true)["stdout"]
+
+      parse_obj(stdout)
+    end
+
+    def isnsadm_list(type)
+      if !isnsadm_control
+        y2error("We aren't control node. Only default DD shown.")
+      end
+
+      objects = isnsadm("--list #{type}", true)["stdout"].split(/Object \d+:\n/)
+
+      temp = []
+      objects.each do |obj|
+        next if obj.empty?
+        temp << parse_obj(obj)
+      end
+      temp
+    end
+
+    def parse_obj(text)
+      obj_details = {}
+
+      text.each_line do |line|
+        line.chomp!
+
+        # Schema of each line is:
+        # <definition> : <key> = <value>
+        # e.g.:
+        #  0020  string      : iSCSI name = "iqn.2005-01.org.open-iscsi.foo:disk1"
+        #  (   m[1]   )        (  m[2]  )   (                m[3]                )
+        #
+        # Quotation marks around the value(if any) are stripped.
+        # In some cases (dds) keys are not unique.
+
+        line.match(/^\s*(.*)\b\s*:\s*(.*)\b\s*=\s*"*([^"]*)"*\s*$/) do |m|
+          key = m[2]
+          value = m[3]
+
+          if key == "DD member iSCSI index" || key == "DD member iSCSI name"
+            obj_details[key] ||= []
+            obj_details[key] << value
+          else
+            obj_details[key] = value
+          end
+        end
+      end
+
+      obj_details
+    end
+
     publish :function => :Modified, :type => "boolean ()"
     publish :variable => :modified, :type => "boolean"
     publish :variable => :configured, :type => "boolean"
@@ -743,22 +424,14 @@ module Yast
     publish :variable => :AbortFunction, :type => "boolean ()"
     publish :function => :Abort, :type => "boolean ()"
     publish :function => :readConfig, :type => "boolean ()"
-    publish :function => :testISNSAccess, :type => "string (string)"
+    publish :function => :testISNSAccess, :type => "boolean ()"
     publish :function => :readISCSI, :type => "list <map <string, any>> (string)"
-    publish :function => :readISCSI_type, :type => "string (string, string)"
-    publish :function => :readDDS, :type => "list <string> (string)"
     publish :function => :readDDMembers, :type => "list <map <string, any>> (string, string)"
-    publish :function => :readDDSMembers, :type => "list <string> (string, string)"
     publish :function => :readDD, :type => "list <string> (string)"
-    publish :function => :addISCSI, :type => "boolean (string, string, string)"
-    publish :function => :addDDS, :type => "boolean (string, string)"
     publish :function => :addDDMember, :type => "boolean (string, string, string)"
-    publish :function => :addDDSMember, :type => "boolean (string, string, string)"
     publish :function => :addDD, :type => "boolean (string, string)"
     publish :function => :deleteISCSI, :type => "boolean (string, string)"
-    publish :function => :deleteDDS, :type => "boolean (string, string)"
     publish :function => :deleteDDMember, :type => "boolean (string, string, string)"
-    publish :function => :deleteDDSMember, :type => "boolean (string, string, string)"
     publish :function => :deleteDD, :type => "boolean (string, string)"
     publish :function => :Read, :type => "boolean ()"
     publish :function => :Write, :type => "boolean ()"
