@@ -17,7 +17,7 @@
 
 
 Name:           yast2-isns
-Version:        3.1.4
+Version:        3.1.5
 Release:        0
 License:	GPL-2.0
 Group:		System/YaST
