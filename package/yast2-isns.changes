@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Oct 12 11:22:48 UTC 2015 - cwh@suse.com
+
+- Do not die if connection to isnsd fails (bsc#941813) 
+- 3.1.6
+
+-------------------------------------------------------------------
 Thu Dec  4 09:50:20 UTC 2014 - jreidinger@suse.com
 
 - remove X-KDE-Library from desktop file (bnc#899104)

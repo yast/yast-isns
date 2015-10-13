@@ -351,7 +351,9 @@ module Yast
 
     def isnsadm_control
       if !@isctrlnode
-        @isctrlnode = isnsadm("--register control")
+        res = isnsadm("--register control", true)
+        @isctrlnode = res["exit"] == 0
+
         if !@isctrlnode
           y2error("Registering as control node failed: #{res["stderr"]}; #{res["stdout"]}")
         end
