@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Jun  7 08:14:04 UTC 2016 - igonzalezsosa@suse.com
+
+- Stop generating autodocs (fate#320356)
+- 3.1.7
+
+-------------------------------------------------------------------
 Mon Oct 12 11:22:48 UTC 2015 - cwh@suse.com
 
 - Do not die if connection to isnsd fails (bsc#941813) 
@@ -8,6 +14,7 @@ Mon Oct 12 11:22:48 UTC 2015 - cwh@suse.com
 Thu Dec  4 09:50:20 UTC 2014 - jreidinger@suse.com
 
 - remove X-KDE-Library from desktop file (bnc#899104)
+- 3.1.5
 
 -------------------------------------------------------------------
 Thu Sep  4 13:39:48 UTC 2014 - cwh@suse.com
