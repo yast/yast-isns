@@ -19,3 +19,5 @@ stamp-h
 isns.pot
 autom4te.cache
 *.ami
+/.yardoc
+/doc
