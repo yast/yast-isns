@@ -10,6 +10,7 @@
 # Representation of the configuration of iscsi-server.
 # Input and output routines.
 require "yast"
+require "y2firewall/firewalld"
 
 module Yast
   class IsnsServerClass < Module
@@ -23,7 +24,6 @@ module Yast
       Yast.import "Service"
       Yast.import "Package"
       Yast.import "Popup"
-      Yast.import "SuSEFirewall"
       Yast.import "Confirm"
       Yast.import "Mode"
       Yast.import "String"
@@ -36,7 +36,6 @@ module Yast
       # Data was modified?
       @modified = false
       @configured = false
-
 
       @proposal_valid = false
 
@@ -286,7 +285,7 @@ module Yast
       return false if !getServiceStatus
 
       # detect devices
-      SuSEFirewall.Read
+      Y2Firewall::Firewalld.instance.read
 
       @modified = false
       @configured = true
@@ -299,7 +298,7 @@ module Yast
       # IsnsServer write dialog caption
       caption = _("Saving isns Configuration")
 
-      SuSEFirewall.Write
+      Y2Firewall::Firewalld.instance.write
 
       # set isns initscript status
       return false if !setServiceStatus

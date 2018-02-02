@@ -17,7 +17,7 @@
 
 
 Name:           yast2-isns
-Version:        3.1.7
+Version:        4.0.0
 Release:        0
 License:	GPL-2.0
 Group:		System/YaST
@@ -25,8 +25,8 @@ Group:		System/YaST
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        %{name}-%{version}.tar.bz2
 
-# Wizard::SetDesktopTitleAndIcon
-Requires:	yast2 >= 2.21.22
+# SuSEFirewall2 replaced by firewalld (fate#323460)
+Requires:       yast2 >= 4.0.39
 BuildRequires:  perl-XML-Writer update-desktop-files yast2 yast2-testsuite
 BuildRequires:  yast2-devtools >= 3.1.10
 

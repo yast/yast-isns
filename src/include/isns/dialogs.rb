@@ -94,7 +94,7 @@ module Yast
           }
         ),
         "firewall"            => CWMFirewallInterfaces.CreateOpenFirewallWidget(
-          { "services" => ["service:isns"], "display_details" => true }
+          { "services" => ["isns"], "display_details" => true }
         ),
         "iscsi_nodes_display" => {
           "widget"        => :custom,
