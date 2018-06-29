@@ -13,7 +13,7 @@ X-SuSE-YaST-AutoInst=all
 X-SuSE-YaST-Geometry=
 X-SuSE-YaST-SortKey=
 X-SuSE-YaST-AutoInstResource=isns
-X-SuSE-YaST-Keywords=internet,storage,name,network,server,devices,iscsi
+X-SuSE-YaST-Keywords=internet,storage,name,network,server,devices,iscsi,scsi
 
 Icon=yast-iscsi-server
 Exec=xdg-su -c "/sbin/yast2 isns"
