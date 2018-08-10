@@ -25,10 +25,12 @@ Group:		System/YaST
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        %{name}-%{version}.tar.bz2
 
-# SuSEFirewall2 replaced by firewalld (fate#323460)
-Requires:       yast2 >= 4.0.39
+# CWM::ServiceWidget
+Requires:       yast2 >= 4.1.0
 BuildRequires:  perl-XML-Writer update-desktop-files yast2 yast2-testsuite
 BuildRequires:  yast2-devtools >= 3.1.10
+# CWM::ServiceWidget
+BuildRequires:  yast2 >= 4.1.0
 
 BuildArchitectures:	noarch
 
