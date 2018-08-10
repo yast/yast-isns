@@ -42,12 +42,14 @@ Summary:	Configuration of isns
 %prep
 %setup -n %{name}-%{version}
 
+%check
+rake test:unit
+
 %build
 %yast_build
 
 %install
 %yast_install
-
 
 %files
 %defattr(-,root,root)
