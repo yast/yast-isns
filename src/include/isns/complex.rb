@@ -27,7 +27,26 @@ module Yast
       IsnsServer.Modified
     end
 
-    def ReallyAbort
+    # Actions to perform when aborting
+    #
+    # @note The socket is stopped if the process is going to be aborted
+    #   and it was not active when the process started.
+    #
+    # @return [Boolean] true if it should abort; false otherwise
+    def abort_configuration
+      abort_config = abort?
+
+      if abort_config && !IsnsServer.socket_initially_active?
+        IsnsServer.isnsdSocketStop
+      end
+
+      abort_config
+    end
+
+    # Shows a confirmation popup when something has been edited
+    #
+    # @return [Boolean] true if it should abort; false otherwise
+    def abort?
       !IsnsServer.Modified || Popup.ReallyAbort(true)
     end
 

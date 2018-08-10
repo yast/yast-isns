@@ -17,7 +17,7 @@
 
 
 Name:           yast2-isns
-Version:        4.0.1
+Version:        4.1.0
 Release:        0
 License:	GPL-2.0
 Group:		System/YaST
@@ -25,10 +25,12 @@ Group:		System/YaST
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        %{name}-%{version}.tar.bz2
 
-# SuSEFirewall2 replaced by firewalld (fate#323460)
-Requires:       yast2 >= 4.0.39
+# CWM::ServiceWidget
+Requires:       yast2 >= 4.1.0
 BuildRequires:  perl-XML-Writer update-desktop-files yast2 yast2-testsuite
 BuildRequires:  yast2-devtools >= 3.1.10
+# CWM::ServiceWidget
+BuildRequires:  yast2 >= 4.1.0
 
 BuildArchitectures:	noarch
 
@@ -42,12 +44,14 @@ Summary:	Configuration of isns
 %prep
 %setup -n %{name}-%{version}
 
+%check
+rake test:unit
+
 %build
 %yast_build
 
 %install
 %yast_install
-
 
 %files
 %defattr(-,root,root)

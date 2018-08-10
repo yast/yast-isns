@@ -8,6 +8,9 @@
 # $Id: isns.ycp 28597 2006-03-06 11:29:38Z mzugec $
 #
 # Main file for isns configuration. Uses all other files.
+
+require "cwm/service_widget"
+
 module Yast
   module IsnsDialogsInclude
     def initialize_isns_dialogs(include_target)
@@ -18,7 +21,6 @@ module Yast
       Yast.import "IsnsServer"
       Yast.import "CWMTab"
       Yast.import "CWM"
-      Yast.import "CWMServiceStart"
       Yast.import "CWMFirewallInterfaces"
       Yast.import "TablePopup"
 
@@ -74,25 +76,7 @@ module Yast
 
 
       @widgets = {
-        "auto_start_up"       => CWMServiceStart.CreateAutoStartWidget(
-          {
-            "get_service_auto_start" => fun_ref(
-              IsnsServer.method(:GetStartService),
-              "boolean ()"
-            ),
-            "set_service_auto_start" => fun_ref(
-              IsnsServer.method(:SetStartService),
-              "void (boolean)"
-            ),
-            "start_auto_button"      => _("When &Booting"),
-            "start_manual_button"    => _("&Manually"),
-            "help"                   => Builtins.sformat(
-              CWMServiceStart.AutoStartHelpTemplate,
-              _("When Booting"),
-              _("Manually")
-            )
-          }
-        ),
+        "auto_start_up" => service_widget.cwm_definition,
         "firewall"            => CWMFirewallInterfaces.CreateOpenFirewallWidget(
           { "services" => ["isns"], "display_details" => true }
         ),
@@ -178,6 +162,13 @@ module Yast
       }
     end
 
+    # Widget to define state and start mode of the service
+    #
+    # @return [::CWM::ServiceWidget]
+    def service_widget
+      @service ||= ::CWM::ServiceWidget.new(IsnsServer.service)
+    end
+
     # Summary dialog
     # @return dialog result
     # Main dialog - tabbed
@@ -226,7 +217,7 @@ module Yast
 
       ret = CWM.Run(
         w,
-        { :abort => fun_ref(method(:ReallyAbort), "boolean ()") }
+        { :abort => fun_ref(method(:abort_configuration), "boolean ()") }
       )
       ret
     end

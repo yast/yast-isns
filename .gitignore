@@ -21,9 +21,4 @@ autom4te.cache
 *.ami
 .yardoc
 doc/
-testsuite/config/
-testsuite/run/
-testsuite/*.log
-testsuite/*.exp
-testsuite/*.sum
-testsuite/yast2-isns.test/testsuite.exp
+coverage/
