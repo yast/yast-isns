@@ -29,27 +29,19 @@ describe "Yast::IsnsServer" do
     subject(:isns_server) { Yast::IsnsServerClass.new }
 
     before do
-      # allow(Yast::Progress).to receive(:New)
-      # allow(Yast::Progress).to receive(:NextStage)
-
       allow(Y2Firewall::Firewalld).to receive(:instance).and_return(firewalld)
-      # allow(Yast::Builtins).to receive(:sleep)
 
       allow(Yast2::SystemService).to receive(:find).with("isnsd").and_return(service)
 
       allow(Yast::Mode).to receive(:auto) { auto }
       allow(Yast::Mode).to receive(:commandline) { commandline }
 
-      # allow(isns_server).to receive(:PollAbort).and_return(false)
-      # allow(isns_server).to receive(:WriteSettings).and_return(true)
-      # allow(isns_server).to receive(:write_daemon)
-
       isns_server.main
     end
 
-    let(:service) { instance_double(Yast2::SystemService, save: true) }
-
     let(:firewalld) { instance_double(Y2Firewall::Firewalld, write: true) }
+
+    let(:service) { instance_double(Yast2::SystemService, save: true) }
 
     let(:auto) { false }
     let(:commandline) { false }

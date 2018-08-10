@@ -310,7 +310,7 @@ module Yast
       Y2Firewall::Firewalld.instance.write
 
       if Mode.auto || Mode.commandline
-        # set isns initscript status
+        # starts/stops the service (and its socket) according to configuration
         setServiceStatus
       else
         isnsdSocketStop unless socket_initially_active?
