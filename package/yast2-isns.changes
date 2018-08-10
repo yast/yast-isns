@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Aug 10 11:08:53 UTC 2018 - jlopez@suse.com
+
+- Use new Yast2::ServiceWidget to manage the service status
+  (part of fate#319428).
+- 4.1.0
+
+-------------------------------------------------------------------
 Thu Jun 28 14:58:02 CEST 2018 - schubi@suse.de
 
 - Added additional searchkeys to desktop file (fate#321043).
