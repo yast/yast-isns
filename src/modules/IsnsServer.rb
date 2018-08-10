@@ -10,6 +10,7 @@
 # Representation of the configuration of iscsi-server.
 # Input and output routines.
 require "yast"
+require "yast2/system_service"
 require "y2firewall/firewalld"
 
 module Yast
@@ -48,6 +49,13 @@ module Yast
       @AbortFunction = fun_ref(method(:Modified), "boolean ()")
 
       @isnsd_socket = nil
+    end
+
+    # Service to configure
+    #
+    # @return [Yast2::SystemService]
+    def service
+      @service ||= Yast2::SystemService.find("isnsd")
     end
 
     def isnsdSocketActive?
@@ -293,16 +301,32 @@ module Yast
     end
 
     # Write all iscsi-server settings
-    # @return true on success
+    #
+    # @return [Boolean] true on success; false otherwise
     def Write
       # IsnsServer write dialog caption
       caption = _("Saving isns Configuration")
 
       Y2Firewall::Firewalld.instance.write
 
-      # set isns initscript status
-      return false if !setServiceStatus
-      true
+      if Mode.auto || Mode.commandline
+        # set isns initscript status
+        setServiceStatus
+      else
+        isnsdSocketStop unless socket_initially_active?
+        service.save
+      end
+    end
+
+    # Whether the socket was intially active
+    #
+    # This module requires to activate the socket to configure the service properly.
+    # When the module is launched (see Read), the socket is activated if it was stopped.
+    # This method checks if the socket was already active at the beginning of the process.
+    #
+    # @return [Boolean]
+    def socket_initially_active?
+      @statusOnStart
     end
 
     # Return packages needed to be installed and removed during
@@ -314,7 +338,8 @@ module Yast
       { "install" => [], "remove" => [] }
     end
 
-
+    # @deprecated
+    #
     # get/set service accessors for CWMService component
     def GetStartService
       status = isnsdSocketEnabled?
@@ -322,6 +347,7 @@ module Yast
       status
     end
 
+    # @deprecated
     def SetStartService(status)
       y2milestone("Set service status %1", status)
       @serviceStatus = status
