@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Aug 23 14:31:13 UTC 2018 - dgonzalez@suse.com
+
+- Update calls to YaST2 systemd classes (related to fate#319428)
+- 4.1.2
+
+-------------------------------------------------------------------
 Thu Aug 23 13:34:29 UTC 2018 - dgonzalez@suse.com
 
 - Avoid crash when "open-isns" is not installed yet
