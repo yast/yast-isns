@@ -25,12 +25,12 @@ Group:		System/YaST
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        %{name}-%{version}.tar.bz2
 
-# CWM::ServiceWidget
-Requires:       yast2 >= 4.1.0
+# Yast2::Systemd::Service
+Requires:       yast2 >= 4.1.3
 BuildRequires:  perl-XML-Writer update-desktop-files yast2 yast2-testsuite
 BuildRequires:  yast2-devtools >= 3.1.10
-# CWM::ServiceWidget
-BuildRequires:  yast2 >= 4.1.0
+# Yast2::Systemd::Service
+BuildRequires:  yast2 >= 4.1.3
 
 BuildArchitectures:	noarch
 
