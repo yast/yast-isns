@@ -29,6 +29,8 @@ Source0:        %{name}-%{version}.tar.bz2
 Requires:       yast2 >= 4.1.3
 BuildRequires:  perl-XML-Writer update-desktop-files yast2 yast2-testsuite
 BuildRequires:  yast2-devtools >= 3.1.10
+BuildRequires:  rubygem(%rb_default_ruby_abi:yast-rake)
+BuildRequires:  rubygem(%rb_default_ruby_abi:rspec)
 # Yast2::Systemd::Service
 BuildRequires:  yast2 >= 4.1.3
 
