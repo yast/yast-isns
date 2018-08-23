@@ -40,7 +40,7 @@ module Yast
               HStretch(),
               HSpacing(1),
               VBox(
-                "auto_start_up",
+                "service_widget",
                 VSpacing(2),
                 "firewall",
                 VSpacing(2)
@@ -50,7 +50,7 @@ module Yast
             ),
             VStretch()
           ),
-          "widget_names" => ["auto_start_up", "firewall"]
+          "widget_names" => ["service_widget", "firewall"]
         },
         # second tab - iSCSI Nodes
         "members"             => {
@@ -76,7 +76,6 @@ module Yast
 
 
       @widgets = {
-        "auto_start_up" => service_widget.cwm_definition,
         "firewall"            => CWMFirewallInterfaces.CreateOpenFirewallWidget(
           { "services" => ["isns"], "display_details" => true }
         ),
@@ -166,7 +165,19 @@ module Yast
     #
     # @return [::CWM::ServiceWidget]
     def service_widget
-      @service ||= ::CWM::ServiceWidget.new(IsnsServer.service)
+      @service_widget ||= ::CWM::ServiceWidget.new(IsnsServer.service)
+    end
+
+    # Add the service wiget if is not already included
+    #
+    # Kind of lazy initialization, since the "open-isns" must be installed in the system.
+    # Otherwise it crashes
+    #
+    # @see Yast::IsnsComplexInclude.ReadDialog
+    def load_service_widget
+      return if @widgets.key?("service_widget")
+
+      @widgets["service_widget"] = service_widget.cwm_definition
     end
 
     # Summary dialog

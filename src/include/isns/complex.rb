@@ -55,12 +55,18 @@ module Yast
     end
 
     # Read settings dialog
-    # @return `abort if aborted and `next otherwise
+    #
+    # @return [Symbol] :abort when settings could not be read; :next otherwise
     def ReadDialog
       Wizard.RestoreHelp(Ops.get_string(@HELPS, "read", ""))
-      # IsnsServer::AbortFunction = PollAbort;
-      ret = IsnsServer.Read
-      ret ? :next : :abort
+
+      return :abort unless IsnsServer.Read
+
+      # Service widget lazy load initialization, since it needs the "open-isns" package which might be
+      # installed by IsnsServer.Read if is not available
+      load_service_widget
+
+      :next
     end
 
     # Write settings dialog
