@@ -17,7 +17,7 @@
 
 
 Name:           yast2-isns
-Version:        4.1.1
+Version:        4.1.2
 Release:        0
 License:	GPL-2.0-only
 Group:		System/YaST
@@ -25,12 +25,14 @@ Group:		System/YaST
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        %{name}-%{version}.tar.bz2
 
-# CWM::ServiceWidget
-Requires:       yast2 >= 4.1.0
+# Yast2::Systemd::Service
+Requires:       yast2 >= 4.1.3
 BuildRequires:  perl-XML-Writer update-desktop-files yast2 yast2-testsuite
 BuildRequires:  yast2-devtools >= 3.1.10
-# CWM::ServiceWidget
-BuildRequires:  yast2 >= 4.1.0
+BuildRequires:  rubygem(%rb_default_ruby_abi:yast-rake)
+BuildRequires:  rubygem(%rb_default_ruby_abi:rspec)
+# Yast2::Systemd::Service
+BuildRequires:  yast2 >= 4.1.3
 
 BuildArchitectures:	noarch
 

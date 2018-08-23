@@ -12,6 +12,7 @@
 require "yast"
 require "yast2/system_service"
 require "y2firewall/firewalld"
+require "yast2/systemd/socket"
 
 module Yast
   class IsnsServerClass < Module
@@ -29,7 +30,6 @@ module Yast
       Yast.import "Mode"
       Yast.import "String"
       Yast.import "Map"
-      Yast.import "SystemdSocket"
 
       @serviceStatus = false
       @statusOnStart = false
@@ -183,7 +183,7 @@ module Yast
       end
 
       # start socket in installed system
-      @isnsd_socket = SystemdSocket.find!("isnsd")
+      @isnsd_socket = Yast2::Systemd::Socket.find!("isnsd")
 
       if isnsdSocketActive?
         @statusOnStart = true
