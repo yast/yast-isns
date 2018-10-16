@@ -65,3 +65,4 @@ rake test:unit
 %{yast_desktopdir}/isns.desktop
 %{yast_scrconfdir}/*.scr
 %doc %{yast_docdir}
+%license COPYING
