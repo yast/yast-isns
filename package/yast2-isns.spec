@@ -65,5 +65,5 @@ rake test:unit
 %{yast_desktopdir}/isns.desktop
 %{yast_scrconfdir}/*.scr
 %doc %{yast_docdir}
-%{_datadir}/icons/*
+%{yast_icondir}
 %license COPYING
