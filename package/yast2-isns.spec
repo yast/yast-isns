@@ -17,7 +17,7 @@
 
 
 Name:           yast2-isns
-Version:        4.1.2
+Version:        4.1.3
 Release:        0
 License:	GPL-2.0-only
 Group:		System/YaST
@@ -65,4 +65,5 @@ rake test:unit
 %{yast_desktopdir}/isns.desktop
 %{yast_scrconfdir}/*.scr
 %doc %{yast_docdir}
+%{yast_icondir}
 %license COPYING

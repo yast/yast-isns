@@ -15,7 +15,7 @@ X-SuSE-YaST-SortKey=
 X-SuSE-YaST-AutoInstResource=isns
 X-SuSE-YaST-Keywords=internet,storage,name,network,server,devices,iscsi,scsi
 
-Icon=yast-iscsi-server
+Icon=yast-isns
 Exec=xdg-su -c "/sbin/yast2 isns"
 
 Name=iSNS Server
