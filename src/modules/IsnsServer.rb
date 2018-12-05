@@ -13,6 +13,7 @@ require "yast"
 require "yast2/system_service"
 require "y2firewall/firewalld"
 require "yast2/systemd/socket"
+require "shellwords"
 
 module Yast
   class IsnsServerClass < Module
@@ -254,27 +255,27 @@ module Yast
 
     def addDDMember(dd_id, iqn)
       y2milestone("addDDMember #{iqn} to #{dd_id}")
-      isnsadm("--dd-register dd-id=#{dd_id} dd-member-name=#{iqn}")
+      isnsadm("--dd-register dd-id=#{dd_id.shellescape} dd-member-name=#{iqn.shellescape}")
     end
 
     def addDD(iqn)
       y2milestone("addDD #{iqn}")
-      isnsadm("--dd-register dd-name=#{iqn}")
+      isnsadm("--dd-register dd-name=#{iqn.shellescape}")
     end
 
     def deleteISCSI(id)
       y2milestone("deleteISCSI: #{id}")
-      isnsadm("--deregister iscsi-name=#{id}")
+      isnsadm("--deregister iscsi-name=#{id.shellescape}")
     end
 
     def deleteDDMember(dd_id, iqn)
       y2milestone("deleteDDMember #{iqn} from #{dd_id}")
-      isnsadm("--dd-deregister #{dd_id} dd-member-name=#{iqn}")
+      isnsadm("--dd-deregister #{dd_id.shellescape} dd-member-name=#{iqn.shellescape}")
     end
 
     def deleteDD(id)
       y2milestone("deleteDD: #{id}")
-      isnsadm("--dd-deregister #{id}")
+      isnsadm("--dd-deregister #{id.shellescape}")
     end
 
     # Read all iscsi-server settings
@@ -363,7 +364,8 @@ module Yast
     private
 
     def isnsadm(params, ret_result = false)
-      command = "isnsadm --local #{params}"
+      # cannot shellescape here as more params can be passed
+      command = "/usr/sbin/isnsadm --local #{params}"
       y2debug("Executing #{command}")
       res = SCR.Execute(path(".target.bash_output"), command, {})
 
@@ -392,7 +394,7 @@ module Yast
         y2error("We aren't control node. Only default DD shown.")
       end
 
-      stdout = isnsadm("--query #{query}", true)["stdout"]
+      stdout = isnsadm("--query #{query.shellescape}", true)["stdout"]
 
       parse_obj(stdout)
     end
@@ -402,7 +404,7 @@ module Yast
         y2error("We aren't control node. Only default DD shown.")
       end
 
-      objects = isnsadm("--list #{type}", true)["stdout"].split(/Object \d+:\n/)
+      objects = isnsadm("--list #{type.shellescape}", true)["stdout"].split(/Object \d+:\n/)
 
       temp = []
       objects.each do |obj|
