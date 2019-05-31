@@ -21,7 +21,7 @@ scrconf_DATA = \
   scrconf/isnsd.scr
 
 desktop_DATA = \
-  desktop/isns.desktop
+  desktop/org.openSUSE.YaST.iSNS.desktop
 
 symbolicdir = @icondir@/hicolor/symbolic/apps
 symbolic_DATA = \

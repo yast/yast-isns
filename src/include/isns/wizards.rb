@@ -54,7 +54,7 @@ module Yast
       }
 
       Wizard.CreateDialog
-      Wizard.SetDesktopTitleAndIcon("isns")
+      Wizard.SetDesktopTitleAndIcon("org.openSUSE.YaST.iSNS")
 
       ret = Sequencer.Run(aliases, sequence)
 
