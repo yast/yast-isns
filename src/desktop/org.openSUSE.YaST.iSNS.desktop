@@ -18,5 +18,6 @@ X-SuSE-YaST-Keywords=internet,storage,name,network,server,devices,iscsi,scsi
 Icon=yast-isns
 Exec=xdg-su -c "/sbin/yast2 isns"
 
-Name=iSNS Server
-GenericName=Configure an iSNS server
+Name=YaST iSNS Server
+GenericName=iSNS Server
+Comment=Configure an iSNS server
