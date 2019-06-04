@@ -12,58 +12,59 @@
 # license that conforms to the Open Source Definition (Version 1.9)
 # published by the Open Source Initiative.
 
-# Please submit bugfixes or comments via http://bugs.opensuse.org/
+# Please submit bugfixes or comments via https://bugs.opensuse.org/
 #
 
 
 Name:           yast2-isns
-Version:        4.1.4
+Version:        4.2.0
 Release:        0
-License:	GPL-2.0-only
-Group:		System/YaST
+License:        GPL-2.0-only
+Group:          System/YaST
+Summary:        Configuration of isns
 
-BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        %{name}-%{version}.tar.bz2
 
-# Yast2::Systemd::Service
-Requires:       yast2 >= 4.1.3
-BuildRequires:  perl-XML-Writer update-desktop-files yast2 yast2-testsuite
-BuildRequires:  yast2-devtools >= 3.1.10
+BuildRequires:  perl-XML-Writer
+BuildRequires:  update-desktop-files
+BuildRequires:  yast2-testsuite
+BuildRequires:  yast2-devtools >= 4.2.2
 BuildRequires:  rubygem(%rb_default_ruby_abi:yast-rake)
 BuildRequires:  rubygem(%rb_default_ruby_abi:rspec)
 # Yast2::Systemd::Service
 BuildRequires:  yast2 >= 4.1.3
 
-BuildArchitectures:	noarch
-
+# Yast2::Systemd::Service
+Requires:       yast2 >= 4.1.3
 Requires:       yast2-ruby-bindings >= 1.0.0
 
-Summary:	Configuration of isns
+BuildArch:      noarch
 
 %description
 -
 
 %prep
-%setup -n %{name}-%{version}
+%setup -q
 
 %check
-rake test:unit
+%yast_check
 
 %build
 %yast_build
 
 %install
 %yast_install
+%yast_metainfo
 
 %files
-%defattr(-,root,root)
-%dir %{yast_yncludedir}/isns
-%{yast_yncludedir}/isns/*
-%{yast_clientdir}/isns.rb
-%{yast_clientdir}/isns_*.rb
-%{yast_moduledir}/*.rb
-%{yast_desktopdir}/isns.desktop
-%{yast_scrconfdir}/*.scr
+%{yast_yncludedir}
+%{yast_clientdir}
+%{yast_moduledir}
+%{yast_desktopdir}
+%{yast_metainfodir}
+%{yast_scrconfdir}
 %doc %{yast_docdir}
 %{yast_icondir}
 %license COPYING
+
+%changelog
