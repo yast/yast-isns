@@ -12,6 +12,7 @@ config.sub
 configure
 configure.ac
 depcomp
+doc/
 install-sh
 missing
 mkinstalldirs
@@ -19,3 +20,13 @@ stamp-h
 isns.pot
 autom4te.cache
 *.ami
+testsuite/*.exp
+testsuite/*.log
+testsuite/config/
+testsuite/run/
+testsuite/raw.tmp.*
+testsuite/tmp.err.*
+testsuite/tmp.out.*
+testsuite/yast2-isns.sum
+testsuite/yast2-isns.test/
+.yardoc/
