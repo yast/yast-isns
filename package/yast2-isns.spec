@@ -17,7 +17,7 @@
 
 
 Name:           yast2-isns
-Version:        4.2.0
+Version:        4.3.0
 Release:        0
 License:        GPL-2.0-only
 Group:          System/YaST
@@ -37,6 +37,8 @@ BuildRequires:  yast2 >= 4.1.3
 # Yast2::Systemd::Service
 Requires:       yast2 >= 4.1.3
 Requires:       yast2-ruby-bindings >= 1.0.0
+
+Supplements:    autoyast(isns)
 
 BuildArch:      noarch
 
