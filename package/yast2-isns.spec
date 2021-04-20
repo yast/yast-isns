@@ -1,7 +1,7 @@
 #
 # spec file for package yast2-isns
 #
-# Copyright (c) 2013 SUSE LINUX Products GmbH, Nuernberg, Germany.
+# Copyright (c) 2021 SUSE LLC
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -17,29 +17,24 @@
 
 
 Name:           yast2-isns
-Version:        4.4.0
+Version:        4.4.1
 Release:        0
+Summary:        Configuration of isns
 License:        GPL-2.0-only
 Group:          System/YaST
-Summary:        Configuration of isns
-
 Source0:        %{name}-%{version}.tar.bz2
-
 BuildRequires:  perl-XML-Writer
 BuildRequires:  update-desktop-files
-BuildRequires:  yast2-testsuite
-BuildRequires:  yast2-devtools >= 4.2.2
-BuildRequires:  rubygem(%rb_default_ruby_abi:yast-rake)
-BuildRequires:  rubygem(%rb_default_ruby_abi:rspec)
 # Yast2::Systemd::Service
 BuildRequires:  yast2 >= 4.1.3
-
+BuildRequires:  yast2-devtools >= 4.4.0
+BuildRequires:  yast2-testsuite
+BuildRequires:  rubygem(%{rb_default_ruby_abi}:rspec)
+BuildRequires:  rubygem(%{rb_default_ruby_abi}:yast-rake)
 # Yast2::Systemd::Service
 Requires:       yast2 >= 4.1.3
 Requires:       yast2-ruby-bindings >= 1.0.0
-
 Supplements:    autoyast(isns)
-
 BuildArch:      noarch
 
 %description
@@ -59,14 +54,13 @@ BuildArch:      noarch
 %yast_metainfo
 
 %files
+%license COPYING
 %{yast_yncludedir}
 %{yast_clientdir}
 %{yast_moduledir}
 %{yast_desktopdir}
 %{yast_metainfodir}
 %{yast_scrconfdir}
-%doc %{yast_docdir}
 %{yast_icondir}
-%license COPYING
 
 %changelog
