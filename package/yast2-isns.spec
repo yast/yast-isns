@@ -17,14 +17,13 @@
 
 
 Name:           yast2-isns
-Version:        5.0.0
+Version:        5.0.1
 Release:        0
 Summary:        Configuration of isns
 License:        GPL-2.0-only
 Group:          System/YaST
 Source0:        %{name}-%{version}.tar.bz2
 BuildRequires:  perl-XML-Writer
-BuildRequires:  update-desktop-files
 # Yast2::Systemd::Service
 BuildRequires:  yast2 >= 4.1.3
 BuildRequires:  yast2-devtools >= 4.4.0
